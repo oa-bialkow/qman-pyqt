@@ -1,8 +1,14 @@
-  1  Image  B          150.0  2 
-  1  Image  V          120.0  2 
-  1  Image  R          120.0  2 
-  1  Image  I          120.0  2 
-  1  Bias   I          1.0    2 
+  1  Bias   R          1.0    16
+  3  Image  R          150.0  16
+  1  Bias   R          1.0    16
+  3  Image  I          120.0  16
+  1  Image  None       0.0    16
+  1  Image  None       0.0    16
+  1  Image  None       0.0    16
+  1  Image  None       0.0    16
+  1  Image  None       0.0    16
+  1  Image  None       0.0    16
+  1  Image  None       0.0    16
 
 % short_darks_for_55UMa_obs
   1  Bias   Ha wide    1.0    16

@@ -11,82 +11,23 @@ authors:
 """
 
 import sys
-from typing import Sequence
-from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QApplication, QMainWindow, QDoubleSpinBox, QComboBox, QSpinBox, QHBoxLayout, QWidget, QInputDialog, QPushButton
-from PySide6.QtCore import SIGNAL, Qt
+from PySide6.QtWidgets import QApplication, QMainWindow, QInputDialog
+from widgets import qrow_widget, TableModel
+from PySide6.QtCore import SIGNAL, Qt, QUrl
 from ui_qman_pyqt import Ui_MainWindow
 import pandas as pd
 import numpy as np
 from datetime import datetime as dt
 import logging
-# from astropy.coordinates import Angle, SkyCoord, EarthLocation, AltAz, ICRS, name_resolve
+from astropy.coordinates import Angle, SkyCoord, EarthLocation, AltAz, ICRS, name_resolve
 # from astropy.time import Time
-# from astropy import units as u
+from astropy import units as u
 # import ephem
 import os
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 # os.environ['QT_MAC_WANTS_LAYER'] = '1'    # to work on MacOS
 
-class QueueObject:
-    def __init__(self, name, n_exp, img_type, filter_type, exp_t, readout_time):
-        self.name = name
-        self.n_exp = n_exp
-        self.img_type = img_type
-        self.filter_type = filter_type
-        self.exp_t = exp_t
-        self.readout_time = readout_time
-    
-    def countQTime(self):
-        n_px = 1252*1152
-        total_exp_t = [a*b for a,b in zip(self.n_exp,self.exp_t)]
-        total_readout_time = [a*b*1e-6*n_px for a,b in zip(self.n_exp,self.readout_time)]
-        return np.sum(total_exp_t) + np.sum(total_readout_time)
-    
-class qrow_widget(QWidget):
-    def __init__(self, qrow, qrows):
-        super().__init__()
-        self.qrows = qrows
-        self.nexp = QSpinBox()    
-        self.nexp.setValue(qrow['Number'])
-        self.nexp.setMinimum(1)
-        self.nexp.setMaximum(9999)
-        self.imptyp = QComboBox()
-        self.imptyp.addItems(['Bias', 'Dark', 'Image'])
-        self.imptyp.setCurrentText(qrow['Type'])
-        self.filter = QComboBox()
-        self.filter.addItems(['U', 'B', 'V', 'R', 'I', 'Han', 'Haw', 'None'])
-        self.filter.setCurrentText(qrow['Filter'])
-        self.exptime = QDoubleSpinBox()
-        self.exptime.setMinimum(0.0)
-        self.exptime.setMaximum(9999.0)
-        self.exptime.setDecimals(2)
-        self.exptime.setSingleStep(0.01)
-        self.exptime.setValue(qrow['Exposure'])
-        self.rot = QComboBox()
-        self.rot.addItems(['1', '2', '16'])
-        self.rot.setCurrentText(qrow['ROT'])
-        self.delrow = QPushButton('Delete')
-        self.delrow.clicked.connect(self.deleterow)
-        layout = QHBoxLayout()
-        layout.setAlignment(Qt.AlignTop)
-        layout.setSpacing(0)
-        layout.setStretch(0, 1)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.nexp)
-        layout.addWidget(self.imptyp)
-        layout.addWidget(self.filter)
-        layout.addWidget(self.exptime)
-        layout.addWidget(self.rot)
-        layout.addWidget(self.delrow)
-        self.setLayout(layout)
-
-    def deleterow(self):
-        self.deleteLater()
-        self.qrows.remove(self)
-        logging.info(f'Row deleted!')
-    
 class QmanMain(QMainWindow):
     def __init__(self, cargs):
         super(QmanMain, self).__init__()
@@ -104,6 +45,8 @@ class QmanMain(QMainWindow):
         # Set first object as current at startup
         self.ui.qobjs.setCurrentItem(self.ui.qobjs.item(0))
         self.on_qlist_item_clicked(self.ui.qobjs.item(0))
+        # self.ui.qview.setMinimumWidth(qrow_widget.sizeHint().width())
+        self.ui.qview.setMinimumWidth(380)
         # Connect SetQueue button to function
         self.ui.setq.clicked.connect(self.set_queue)
         self.ui.actionSet_queue.triggered.connect(self.set_queue)
@@ -114,6 +57,9 @@ class QmanMain(QMainWindow):
         self.ui.add_row.clicked.connect(self.add_row)
         # Connect Remove Queue button to function
         self.ui.actionRemove_queue.triggered.connect(self.remove_queue)
+        # Connect Resolve button to function
+        self.ui.resolve.clicked.connect(self.get_obj_data)
+
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Ready!')
         logging.info(f'Ready!')
 
@@ -196,6 +142,7 @@ class QmanMain(QMainWindow):
 
     def on_qlist_item_clicked(self, item):
         clicked_queue = self.qobjs[self.qobjs['Object'] == item.text()]
+        self.ui.obj_name.setText(item.text())
         for wid in self.qrows:
             wid.deleteLater()
         self.qrows = []
@@ -203,6 +150,7 @@ class QmanMain(QMainWindow):
             new_qrow = qrow_widget(row, self.qrows)
             self.qrows.append(new_qrow)
             self.ui.queue.layout().addWidget(new_qrow)
+        self.get_obj_data()
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Queue for {item.text()} loaded!')
         logging.info(f'Queue for {item.text()} loaded!')
 
@@ -227,6 +175,20 @@ class QmanMain(QMainWindow):
                         data['ROT'].append(str(parts[4]))
 
         return pd.DataFrame(data)
+    
+    def get_obj_data(self):
+        try:
+            objname = self.ui.obj_name.text()
+            c = SkyCoord.from_name(objname)
+            ra = c.ra.to_string(u.hour, sep=':')
+            dec = c.dec.to_string(u.deg, sep=':')
+            # data = {'Object': [objname], 'RA': [ra], 'DEC': [dec]}
+            data = [[objname], [ra], [dec]]
+            self.model = TableModel(data)
+            self.ui.details_table.setModel(self.model)
+        except name_resolve.NameResolveError:
+            self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} {objname} not found!')
+            logging.info(f'{objname} not found!')
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
