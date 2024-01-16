@@ -10,6 +10,11 @@
     <height>751</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Noto Mono for Powerline</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -37,14 +42,21 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QScrollArea" name="qlist">
+     <widget class="QScrollArea" name="qscroll">
       <property name="enabled">
        <bool>true</bool>
+      </property>
+      <property name="font">
+       <font>
+        <family>Monaco</family>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
       </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
-      <widget class="QWidget" name="qobjs">
+      <widget class="QWidget" name="qlist">
        <property name="geometry">
         <rect>
          <x>0</x>
@@ -53,12 +65,60 @@
          <height>698</height>
         </rect>
        </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QListWidget" name="qobjs">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Monaco</family>
+            <pointsize>18</pointsize>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
     <item>
      <widget class="QWidget" name="qview" native="true">
-      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <family>Monaco</family>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
         <number>0</number>
        </property>
@@ -75,143 +135,75 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QWidget" name="queue" native="true">
+        <widget class="QScrollArea" name="qscroll2">
+         <property name="font">
+          <font>
+           <family>Monaco</family>
+           <pointsize>18</pointsize>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="queue">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>380</width>
+            <height>613</height>
+           </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="sizeConstraint">
+            <enum>QLayout::SetFixedSize</enum>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="add_row">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QWidget" name="qrow" native="true">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <widget class="QSpinBox" name="nofim"/>
-             </item>
-             <item>
-              <widget class="QComboBox" name="imtyp">
-               <item>
-                <property name="text">
-                 <string>Bias</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Dark</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Image</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="filter">
-               <item>
-                <property name="text">
-                 <string>U</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>B</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>V</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>R</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>I</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Han</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Haw</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>None</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item>
-              <widget class="QDoubleSpinBox" name="exptime"/>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="rot"/>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="tsec">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>time_sec</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="thms">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>time_hms</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <property name="font">
+          <font>
+           <family>Monaco</family>
+           <pointsize>18</pointsize>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>ADD ROW</string>
+         </property>
         </widget>
        </item>
        <item>
@@ -224,11 +216,14 @@
          </property>
          <property name="font">
           <font>
-           <pointsize>22</pointsize>
+           <family>Monaco</family>
+           <pointsize>30</pointsize>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
-          <string>Set queue</string>
+          <string>SET QUEUE</string>
          </property>
         </widget>
        </item>
@@ -237,24 +232,56 @@
     </item>
     <item>
      <widget class="QWidget" name="obj" native="true">
+      <property name="font">
+       <font>
+        <family>Monaco</family>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
-        <widget class="QWebView" name="alladin" native="true">
+        <widget class="QWidget" name="alladin" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="url" stdset="0">
-          <url>
-           <string>about:blank</string>
-          </url>
+         <property name="font">
+          <font>
+           <family>Monaco</family>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="details"/>
+        <widget class="QListWidget" name="details">
+         <property name="font">
+          <font>
+           <family>Monaco</family>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -270,16 +297,47 @@
      <height>24</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuMenu">
+    <property name="title">
+     <string>Menu</string>
+    </property>
+    <addaction name="actionAdd_queue"/>
+    <addaction name="actionRemove_queue"/>
+    <addaction name="separator"/>
+    <addaction name="actionChange_name"/>
+    <addaction name="separator"/>
+    <addaction name="actionSet_queue"/>
+    <addaction name="separator"/>
+   </widget>
+   <addaction name="menuMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionAdd_queue">
+   <property name="text">
+    <string>Add queue</string>
+   </property>
+  </action>
+  <action name="actionRemove_queue">
+   <property name="text">
+    <string>Remove queue</string>
+   </property>
+  </action>
+  <action name="actionSet_queue">
+   <property name="text">
+    <string>Set queue</string>
+   </property>
+  </action>
+  <action name="actionChange_name">
+   <property name="text">
+    <string>Change name</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header location="global">QtWebKitWidgets/QWebView</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
