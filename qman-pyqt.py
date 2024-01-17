@@ -3,7 +3,9 @@
 """
 Created on Fri Jan 12 12:05:04 2024
 This is the program for Andor CCDOBS quene management. It is written in Python 3.11 and
-uses PyQt5 for the GUI. It is based on the PyQt5 designer file ui_bltman.ui.
+uses PySide6 (PyQt6) for the GUI. It is based on the PyQt6 designer file qman-pyqt.ui. 
+Every change in ui file must be converted to Python file with command:
+    pyside6-uic qman-pyqt.ui -o ui_qman_pyqt.py
 
 authors: 
     K. Kotysz:      k.kotysz(at)gmail.com
@@ -12,7 +14,7 @@ authors:
 
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QInputDialog
-from widgets import qrow_widget, TableModel
+from widgets import qrow_widget, TableModel, CurrentQueue, update_table
 from PySide6.QtCore import SIGNAL, Qt, QUrl
 from ui_qman_pyqt import Ui_MainWindow
 import pandas as pd
@@ -25,7 +27,7 @@ from astropy import units as u
 # import ephem
 import os
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s', filemode='w', filename='qman.log')
 # os.environ['QT_MAC_WANTS_LAYER'] = '1'    # to work on MacOS
 
 class QmanMain(QMainWindow):
@@ -36,6 +38,16 @@ class QmanMain(QMainWindow):
         self.ccdobs = cargs[1]
         self.qobjs = self.get_qlist()
         self.qrows = []
+        logging.info(f'QMAN started!')
+        logging.info(f'CCDOBS file: {self.ccdobs}')
+
+        # Read objpos.dat file
+        self.objpos = pd.read_csv('objpos.dat', sep='\s+', header=None,
+                                  names=['Object', 'RAd', 'RAm', 'RAs', 
+                                         'DECd', 'DECm', 'DECs', 'Epoch', 
+                                         'Pier side', 'Guiding star', 'Guider position'],
+                                  comment='#', skipinitialspace=True)
+        # print(self.objpos)
 
         # Fill QListWidget with objects
         for obj in sorted(self.qobjs['Object'].unique(), key=str.lower):
@@ -65,9 +77,10 @@ class QmanMain(QMainWindow):
 
     def set_queue(self):
         self.qobjs = self.get_qlist()
+        curr_q = CurrentQueue(self.qrows, '0_CURRENT_QUEUE')
         # Set current queue as 0_CURRENT_QUEUE
         self.qobjs = self.qobjs[self.qobjs['Object'] != '0_CURRENT_QUEUE'] # remove all 0_CURRENT_QUEUEs from list
-        self.qobjs = pd.concat([self.get_current_queue('0_CURRENT_QUEUE'), self.qobjs]) # add current queue to list
+        self.qobjs = pd.concat([curr_q.queue, self.qobjs]) # add current queue to list
         self.save_queue()
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Queue set!')
         logging.info(f'Queue set!')
@@ -92,19 +105,6 @@ class QmanMain(QMainWindow):
                     f.write(f"{row['Number']:^5d}{row['Type']:<7s}{row['Filter']:<11s}{row['Exposure']:<7.1f}{row['ROT']:<2s}\n")
                 f.write('\n')
     
-    def get_current_queue(self, text):
-        curr_q = pd.DataFrame()
-        for wid in self.qrows:
-            obj = { 'Object':   [text], 
-                    'Number':   [wid.nexp.value()], 
-                    'Type':     [wid.imptyp.currentText()], 
-                    'Filter':   [wid.filter.currentText()], 
-                    'Exposure': [wid.exptime.value()],
-                    'ROT':      [wid.rot.currentText()]
-                    }
-            curr_q = pd.concat([curr_q, pd.DataFrame(obj)])
-        return curr_q
-
     def remove_queue(self):
         # show dialog with name input
         self.qobjs = self.get_qlist()
@@ -123,7 +123,7 @@ class QmanMain(QMainWindow):
         text, ok = QInputDialog.getText(self, 'Add queue', 'Object name:')
         if ok:
             self.ui.qobjs.addItem(text)
-            toadd = self.get_current_queue(text)
+            toadd = CurrentQueue(self.qrows, text).queue
             self.qobjs = pd.concat([toadd, self.qobjs])
             self.save_queue()
         self.ui.qobjs.sortItems()
@@ -131,15 +131,19 @@ class QmanMain(QMainWindow):
         self.on_qlist_item_clicked(self.ui.qobjs.currentItem())
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Queue for {text} added!')
         logging.info(f'Queue for {text} added!')
-
+    
+    @update_table
     def add_row(self):
-        empty_row = {'Object': 'Foo', 'Number': 1, 'Type': 'Image', 'Filter': 'None', 'Exposure': 0.0, 'ROT': '16'}
-        new_qrow = qrow_widget(empty_row, self.qrows)
+        empty_row = {'Object': 'Foo', 'Number': 1, 'Type': 'Image', 'Filter': 'None', 'Exposure': 1.0, 'ROT': '16'}
+        new_qrow = qrow_widget(empty_row, self.qrows, self)
         self.qrows.append(new_qrow)
         self.ui.queue.layout().addWidget(new_qrow)
+        qtime = CurrentQueue(self.qrows, 'dummy').countQueue()
+        self.table_data['Queue time'] = str(qtime)
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Row added!')
         logging.info(f'Row added!')
-
+        return self
+    
     def on_qlist_item_clicked(self, item):
         clicked_queue = self.qobjs[self.qobjs['Object'] == item.text()]
         self.ui.obj_name.setText(item.text())
@@ -147,7 +151,7 @@ class QmanMain(QMainWindow):
             wid.deleteLater()
         self.qrows = []
         for n, row in clicked_queue.iterrows():
-            new_qrow = qrow_widget(row, self.qrows)
+            new_qrow = qrow_widget(row, self.qrows, self)
             self.qrows.append(new_qrow)
             self.ui.queue.layout().addWidget(new_qrow)
         self.get_obj_data()
@@ -176,19 +180,28 @@ class QmanMain(QMainWindow):
 
         return pd.DataFrame(data)
     
+    @update_table
     def get_obj_data(self):
-        try:
-            objname = self.ui.obj_name.text()
-            c = SkyCoord.from_name(objname)
-            ra = c.ra.to_string(u.hour, sep=':')
-            dec = c.dec.to_string(u.deg, sep=':')
-            # data = {'Object': [objname], 'RA': [ra], 'DEC': [dec]}
-            data = [[objname], [ra], [dec]]
-            self.model = TableModel(data)
-            self.ui.details_table.setModel(self.model)
-        except name_resolve.NameResolveError:
-            self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} {objname} not found!')
-            logging.info(f'{objname} not found!')
+        objname = self.ui.obj_name.text()
+        qtime = CurrentQueue(self.qrows, objname).countQueue()
+        # Initialize table as pandas DataFrame from dictionary
+        data = {'Object': [objname], 'RA': [''], 'DEC': [''], 'Queue time': [str(qtime)]}
+        self.table_data = pd.DataFrame.from_dict(data)
+        if objname != '0_CURRENT_QUEUE':
+            try:
+                c = SkyCoord.from_name(objname)
+                observing_location = EarthLocation(lat=50.061389*u.deg, lon=19.938333*u.deg, height=202*u.m)
+                observing_time = dt.utcnow()
+                observing_time = observing_time.replace(tzinfo=None)
+                # sun_sep = 
+                ra = c.ra.to_string(u.hour, sep=':')
+                dec = c.dec.to_string(u.deg, sep=':')
+                self.table_data['RA'] = ra
+                self.table_data['DEC'] = dec
+            except name_resolve.NameResolveError:
+                self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} {objname} not found!')
+                logging.info(f'{objname} not found!')
+        return self
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

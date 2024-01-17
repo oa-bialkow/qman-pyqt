@@ -1,34 +1,52 @@
-from PySide6.QtWidgets import QDoubleSpinBox, QComboBox, QSpinBox, QHBoxLayout, QWidget, QPushButton, QLabel, QSizePolicy
+from PySide6.QtWidgets import QDoubleSpinBox, QComboBox, QSpinBox, QHBoxLayout, QWidget, QPushButton, QHeaderView, QSizePolicy
 from PySide6.QtCore import Qt
 from PySide6 import QtCore, QtGui
 import logging
-import numpy as np
+import time
+import pandas as pd
 
+def update_table(func):
+    def wrapper_update_table(*args, **kwargs):
+        obj = func(*args, **kwargs)
+        obj.ui.details_table.setModel(TableModel(obj.table_data))
+        obj.ui.details_table.resizeColumnsToContents()
+        obj.ui.details_table.resizeRowsToContents()
+        header = obj.ui.details_table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.Stretch)
+    return wrapper_update_table
 
-class QueueObject:
-    def __init__(self, name, n_exp, img_type, filter_type, exp_t, readout_time):
-        self.name = name
-        self.n_exp = n_exp
-        self.img_type = img_type
-        self.filter_type = filter_type
-        self.exp_t = exp_t
-        self.readout_time = readout_time
-    
-    def countQTime(self):
+class CurrentQueue:
+    def __init__(self, qrows, text):
+        self.queue = pd.DataFrame()
+        for wid in qrows:
+            obj = { 'Object':   [text], 
+                    'Number':   [wid.nexp.value()], 
+                    'Type':     [wid.imptyp.currentText()], 
+                    'Filter':   [wid.filter.currentText()], 
+                    'Exposure': [wid.exptime.value()],
+                    'ROT':      [wid.rot.currentText()]
+                    }
+            self.queue = pd.concat([self.queue, pd.DataFrame(obj)])
+
+    def countQueue(self):
         n_px = 1252*1152
-        total_exp_t = [a*b for a,b in zip(self.n_exp,self.exp_t)]
-        total_readout_time = [a*b*1e-6*n_px for a,b in zip(self.n_exp,self.readout_time)]
-        return np.sum(total_exp_t) + np.sum(total_readout_time)
+        total_exp_t = self.queue['Number']*self.queue['Exposure']
+        total_readout_time = self.queue['Number']*self.queue['ROT'].apply(int)*1e-6*n_px
+        q_time  = total_exp_t.sum() + total_readout_time.sum()
+        time_obj = time.gmtime(q_time)
+        resultant_time = time.strftime("%Hh %Mm %Ss",time_obj)
+        return f'{resultant_time} ({q_time:.1f} s)' # convert to hms
     
 class qrow_widget(QWidget):
-    def __init__(self, qrow, qrows):
+    def __init__(self, qrow, qrows, obj):
         super().__init__()
-        self.qrows = qrows
+        self.obj = obj
         self.nexp = QSpinBox()    
         self.nexp.setValue(qrow['Number'])
         self.nexp.setMinimum(1)
         self.nexp.setMaximum(999)
         self.nexp.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.nexp.valueChanged.connect(lambda: self.on_value_changed())
 
         self.imptyp = QComboBox()
         self.imptyp.addItems(['Bias', 'Dark', 'Image'])
@@ -43,15 +61,17 @@ class qrow_widget(QWidget):
         self.exptime = QDoubleSpinBox()
         self.exptime.setMinimum(0.0)
         self.exptime.setMaximum(9999.0)
-        self.exptime.setDecimals(2)
-        self.exptime.setSingleStep(0.01)
+        self.exptime.setDecimals(1)
+        self.exptime.setSingleStep(1)
         self.exptime.setValue(qrow['Exposure'])
         self.exptime.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.exptime.valueChanged.connect(lambda: self.on_value_changed())
 
         self.rot = QComboBox()
         self.rot.addItems(['1', '2', '16'])
         self.rot.setCurrentText(qrow['ROT'])
         self.rot.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.rot.currentTextChanged.connect(lambda: self.on_value_changed())
 
         self.delrow = QPushButton('')
         self.delrow.clicked.connect(self.deleterow)
@@ -72,44 +92,45 @@ class qrow_widget(QWidget):
         layout.addWidget(self.delrow)
         self.setLayout(layout)
 
+    @update_table
+    def on_value_changed(self):
+        qtime = CurrentQueue(self.obj.qrows, 'dummy').countQueue()
+        self.obj.table_data['Queue time'] = str(qtime)
+        logging.info(f'Queue time updated!')
+        return self.obj
+
+    @update_table
     def deleterow(self):
         self.deleteLater()
-        self.qrows.remove(self)
+        self.obj.qrows.remove(self)
+        qtime = CurrentQueue(self.obj.qrows, 'dummy').countQueue()
+        self.obj.table_data['Queue time'] = str(qtime)
         logging.info(f'Row deleted!')
-
-class details_widget(QWidget):
-    def __init__(self, parent):
-        super().__init__()
-        self.parent = parent
-        self.ra = QLabel()
-        self.ra.setText('RA: ')
-        self.ra_value = QLabel()
-        self.ra_value.setText('999.999')
-        self.dec = QLabel()
-        self.dec.setText('DEC')
-        self.dec_value = QLabel()
-        self.dec_value.setText('999.999')
-        layout = QHBoxLayout()
-        layout.addWidget(self.ra)
-        self.setLayout(layout) 
+        return self.obj
 
 class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
         super(TableModel, self).__init__()
-        self._data = data
+        self._data = data.T
+
+    def headerData(self, section, orientation, role):
+        if role == Qt.ItemDataRole.DisplayRole:
+            if orientation == Qt.Orientation.Horizontal:
+                return str(self._data.columns[section])
+            else:
+                return str(self._data.index[section])
 
     def data(self, index, role):
         if role == Qt.ItemDataRole.DisplayRole:
-            # See below for the nested-list data structure.
-            # .row() indexes into the outer list,
-            # .column() indexes into the sub-list
-            return self._data[index.row()][index.column()]
+            row = index.row()
+            column = index.column()
+            value = self._data.iloc[row][column]
+            return str(value)
+        elif role == QtCore.Qt.TextAlignmentRole:
+            return Qt.AlignCenter
 
-    def rowCount(self, index):
-        # The length of the outer list.
-        return len(self._data)
+    def rowCount(self, parent=QtCore.QModelIndex()):
+        return len(self._data.index)
 
-    def columnCount(self, index):
-        # The following takes the first sub-list, and returns
-        # the length (only works if all rows are an equal length)
-        return len(self._data[0])
+    def columnCount(self, parent=QtCore.QModelIndex()):
+        return len(self._data.columns.values)

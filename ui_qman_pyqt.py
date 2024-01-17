@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'qman-pyqt.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.6.1
+## Created by: Qt User Interface Compiler version 6.5.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1148, 751)
+        MainWindow.resize(988, 681)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -69,7 +69,7 @@ class Ui_MainWindow(object):
         self.qscroll.setWidgetResizable(True)
         self.qlist = QWidget()
         self.qlist.setObjectName(u"qlist")
-        self.qlist.setGeometry(QRect(0, 0, 256, 705))
+        self.qlist.setGeometry(QRect(0, 0, 256, 628))
         self.verticalLayout_4 = QVBoxLayout(self.qlist)
         self.verticalLayout_4.setSpacing(0)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
@@ -110,7 +110,7 @@ class Ui_MainWindow(object):
         self.qscroll2.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
         self.queue = QWidget()
         self.queue.setObjectName(u"queue")
-        self.queue.setGeometry(QRect(0, 0, 443, 613))
+        self.queue.setGeometry(QRect(0, 0, 363, 550))
         sizePolicy.setHeightForWidth(self.queue.sizePolicy().hasHeightForWidth())
         self.queue.setSizePolicy(sizePolicy)
         self.queue.setFont(font2)
@@ -219,7 +219,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1148, 22))
+        self.menubar.setGeometry(QRect(0, 0, 988, 24))
         self.menuMenu = QMenu(self.menubar)
         self.menuMenu.setObjectName(u"menuMenu")
         MainWindow.setMenuBar(self.menubar)
