@@ -22,7 +22,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>qman</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -31,7 +31,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -48,72 +48,45 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QScrollArea" name="qscroll">
-      <property name="enabled">
-       <bool>true</bool>
+     <layout class="QVBoxLayout" name="qlist">
+      <property name="leftMargin">
+       <number>2</number>
       </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+      <property name="topMargin">
+       <number>2</number>
       </property>
-      <property name="font">
-       <font>
-        <family>Monaco</family>
-        <italic>false</italic>
-        <bold>false</bold>
-       </font>
-      </property>
-      <property name="widgetResizable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="qlist">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>256</width>
-         <height>628</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <property name="spacing">
-         <number>0</number>
+      <item>
+       <widget class="QLineEdit" name="qobjs_filter">
+        <property name="inputMask">
+         <string/>
         </property>
-        <property name="leftMargin">
-         <number>0</number>
+        <property name="text">
+         <string/>
         </property>
-        <property name="topMargin">
-         <number>0</number>
+        <property name="placeholderText">
+         <string>Search...</string>
         </property>
-        <property name="rightMargin">
-         <number>0</number>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="qobjs">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="bottomMargin">
-         <number>0</number>
+        <property name="font">
+         <font>
+          <family>Monaco</family>
+          <pointsize>11</pointsize>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
         </property>
-        <item>
-         <widget class="QListWidget" name="qobjs">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Monaco</family>
-            <pointsize>11</pointsize>
-            <italic>false</italic>
-            <bold>false</bold>
-           </font>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="QWidget" name="qview" native="true">
@@ -179,7 +152,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>363</width>
+            <width>328</width>
             <height>550</height>
            </rect>
           </property>
@@ -397,6 +370,9 @@
               <bold>false</bold>
              </font>
             </property>
+            <attribute name="horizontalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
            </widget>
           </item>
          </layout>

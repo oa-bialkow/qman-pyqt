@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Jan 12 12:05:04 2024
-This is the program for Andor CCDOBS quene management. It is written in Python 3.11 and
+This is the program for Andor CCDOBS queue management. It is written in Python 3.11 and
 uses PySide6 (PyQt6) for the GUI. It is based on the PyQt6 designer file qman-pyqt.ui. 
 Every change in ui file must be converted to Python file with command:
     pyside6-uic qman-pyqt.ui -o ui_qman_pyqt.py
@@ -14,7 +14,7 @@ authors:
 
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QInputDialog
-from widgets import qrow_widget, TableModel, CurrentQueue, update_table
+from widgets import qrow_widget, TableModel, CurrentQueue, update_table, ObjectInfo
 from PySide6.QtCore import SIGNAL, Qt, QUrl
 from ui_qman_pyqt import Ui_MainWindow
 import pandas as pd
@@ -71,6 +71,8 @@ class QmanMain(QMainWindow):
         self.ui.actionRemove_queue.triggered.connect(self.remove_queue)
         # Connect Resolve button to function
         self.ui.resolve.clicked.connect(self.get_obj_data)
+        # Connect Filter inpout to function on text change
+        self.ui.qobjs_filter.textChanged.connect(self.filter_qobjs)
 
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Ready!')
         logging.info(f'Ready!')
@@ -134,6 +136,7 @@ class QmanMain(QMainWindow):
     
     @update_table
     def add_row(self):
+        # Add row to queue
         empty_row = {'Object': 'Foo', 'Number': 1, 'Type': 'Image', 'Filter': 'None', 'Exposure': 1.0, 'ROT': '16'}
         new_qrow = qrow_widget(empty_row, self.qrows, self)
         self.qrows.append(new_qrow)
@@ -159,6 +162,7 @@ class QmanMain(QMainWindow):
         logging.info(f'Queue for {item.text()} loaded!')
 
     def get_qlist(self):
+        # Read CCD queue from file
         data = {'Object': [], 'Number': [], 'Type': [], 'Filter': [], 'Exposure': [], 'ROT': []}
         with open(self.ccdobs, 'r') as file:
             current_object_name = '0_CURRENT_QUEUE'
@@ -180,28 +184,41 @@ class QmanMain(QMainWindow):
 
         return pd.DataFrame(data)
     
+    
     @update_table
     def get_obj_data(self):
         objname = self.ui.obj_name.text()
         qtime = CurrentQueue(self.qrows, objname).countQueue()
         # Initialize table as pandas DataFrame from dictionary
-        data = {'Object': [objname], 'RA': [''], 'DEC': [''], 'Queue time': [str(qtime)]}
+        data = {'Object': [objname], 'RA': [''], 'DEC': [''], 'HA': [''], 'Alt': [''], 'Queue time': [str(qtime)]}
         self.table_data = pd.DataFrame.from_dict(data)
-        if objname != '0_CURRENT_QUEUE':
-            try:
-                c = SkyCoord.from_name(objname)
-                observing_location = EarthLocation(lat=50.061389*u.deg, lon=19.938333*u.deg, height=202*u.m)
-                observing_time = dt.utcnow()
-                observing_time = observing_time.replace(tzinfo=None)
-                # sun_sep = 
-                ra = c.ra.to_string(u.hour, sep=':')
-                dec = c.dec.to_string(u.deg, sep=':')
-                self.table_data['RA'] = ra
-                self.table_data['DEC'] = dec
-            except name_resolve.NameResolveError:
-                self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} {objname} not found!')
-                logging.info(f'{objname} not found!')
+        # Get object data from astropy
+        my_obj = ObjectInfo(objname)
+        obj_alt, obj_ha, ra, dec = my_obj.get_info()
+        self.table_data['HA'] = f'{obj_ha}'
+        self.table_data['Alt'] = f'{obj_alt}'
+        if objname != '0_CURRENT_QUEUE' and objname not in self.objpos['Object'].values:
+            self.table_data['RA'] = f'{ra} (J2000)*'
+            self.table_data['DEC'] = f'{dec} (J2000)*'
+        elif objname != '0_CURRENT_QUEUE':
+            obj = self.objpos[self.objpos['Object'] == objname]
+            ra = f"{int(obj['RAd'].values[0]):2d}:{int(obj['RAm'].values[0]):02d}:{int(obj['RAs'].values[0]):02d} (J{obj['Epoch'].values[0]})"
+            dec = f"{obj['DECd'].values[0].zfill(2)}:{int(obj['DECm'].values[0]):02d}:{int(obj['DECs'].values[0]):02d} (J{obj['Epoch'].values[0]})"
+            self.table_data['RA'] = ra
+            self.table_data['DEC'] = dec
+            self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} {objname} found in objpos.dat!')
+            logging.info(f'{objname} found in objpos.dat!')
         return self
+
+    def filter_qobjs(self):
+        filt_obj = self.ui.qobjs_filter.text()
+        all_obj = self.qobjs['Object'].unique()
+        filtered = filter(lambda x: filt_obj.lower() in x.lower(), all_obj)
+        self.ui.qobjs.clear()
+        for obj in sorted(filtered, key=str.lower):
+            self.ui.qobjs.addItem(obj)
+
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

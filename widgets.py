@@ -4,6 +4,43 @@ from PySide6 import QtCore, QtGui
 import logging
 import time
 import pandas as pd
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz, Angle
+from astropy import units as u
+from astropy.coordinates import name_resolve
+from datetime import datetime as dt
+import ephem
+from astropy.time import Time
+import numpy as np
+class ObjectInfo:
+    def __init__(self, objname):
+        self.objname = objname
+        self.myobs = ephem.Observer()
+        self.myobs.lon = 16.656667
+        self.myobs.lat = 51.476111
+        self.myobs.elevation = 130
+        self.myobs.date = str(Time(dt.utcnow(), scale='ut1', location=(self.myobs.lon * u.deg, self.myobs.lat * u.deg)))  # Time in UT
+        
+    def get_info(self):
+        try:
+            c = SkyCoord.from_name(self.objname)
+            logging.info(f'{self.objname} resolved!')
+        except name_resolve.NameResolveError:
+            logging.info(f'{self.objname} not found!')
+            return ('', '', '', '')
+        obs_location = EarthLocation(lat=self.myobs.lat*u.deg, lon=self.myobs.lon*u.deg, height=self.myobs.elevation*u.m)
+        obs_time = dt.utcnow()
+        obs_altaz = AltAz(location=obs_location, obstime=obs_time, pressure=1010.0 * u.hPa, temperature=10.0 * u.deg_C,
+            relative_humidity=20, obswl=0.6 * u.micron)
+        obj_altaz = c.transform_to(obs_altaz)
+        # obj_alt = obj_altaz.alt.to_string(u.deg, sep=':', precision=0)
+        obj_alt = f'{obj_altaz.alt.degree:.2f}°'
+        # obj_az = obj_altaz.az.to_string(u.deg, sep=':', precision=0)
+        obj_radian = Angle(((self.myobs.sidereal_time() - c.ra.to(u.rad).value) % (2*np.pi))*u.rad)
+        obj_hms = obj_radian.hms
+        obj_ha = f'{obj_hms.h:02.0f}h {obj_hms.m:02.0f}m {obj_hms.s:02.0f}s'
+        ra = c.ra.to_string(u.hour, sep=':', precision=0)
+        dec = c.dec.to_string(u.deg, sep=':', precision=0)
+        return (obj_alt, obj_ha, ra, dec)
 
 def update_table(func):
     def wrapper_update_table(*args, **kwargs):
