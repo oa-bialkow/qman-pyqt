@@ -6,12 +6,23 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1148</width>
-    <height>751</height>
+    <width>988</width>
+    <height>681</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="font">
+   <font>
+    <family>Noto Mono</family>
+   </font>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>qman</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -20,7 +31,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -37,27 +48,216 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QScrollArea" name="qlist">
-      <property name="enabled">
-       <bool>true</bool>
+     <layout class="QVBoxLayout" name="qlist">
+      <property name="leftMargin">
+       <number>2</number>
       </property>
-      <property name="widgetResizable">
-       <bool>true</bool>
+      <property name="topMargin">
+       <number>2</number>
       </property>
-      <widget class="QWidget" name="qobjs">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>381</width>
-         <height>698</height>
-        </rect>
-       </property>
-      </widget>
-     </widget>
+      <item>
+       <widget class="QLineEdit" name="qobjs_filter">
+        <property name="font">
+         <font>
+          <family>Noto Mono</family>
+         </font>
+        </property>
+        <property name="inputMask">
+         <string/>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>Search...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="qobjs">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Noto Mono</family>
+          <pointsize>11</pointsize>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="QWidget" name="qview" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <family>Noto Mono</family>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QScrollArea" name="qscroll2">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Noto Mono</family>
+           <pointsize>11</pointsize>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignHCenter|Qt::AlignTop</set>
+         </property>
+         <widget class="QWidget" name="queue">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>328</width>
+            <height>556</height>
+           </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Monaco</family>
+            <pointsize>11</pointsize>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="sizeConstraint">
+            <enum>QLayout::SetFixedSize</enum>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="add_row">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Noto Mono</family>
+           <pointsize>11</pointsize>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>ADD ROW</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="setq">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Noto Mono</family>
+           <pointsize>30</pointsize>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>SET QUEUE</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="obj" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <family>Noto Mono</family>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="spacing">
         <number>0</number>
@@ -75,17 +275,22 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QWidget" name="queue" native="true">
+        <widget class="QWidget" name="aladin" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <property name="spacing">
-           <number>0</number>
-          </property>
+         <property name="font">
+          <font>
+           <family>Noto Mono</family>
+           <pointsize>11</pointsize>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -98,116 +303,15 @@
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item>
-           <widget class="QWidget" name="qrow" native="true">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <widget class="QSpinBox" name="nofim"/>
-             </item>
-             <item>
-              <widget class="QComboBox" name="imtyp">
-               <item>
-                <property name="text">
-                 <string>Bias</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Dark</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Image</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="filter">
-               <item>
-                <property name="text">
-                 <string>U</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>B</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>V</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>R</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>I</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Han</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Haw</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>None</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item>
-              <widget class="QDoubleSpinBox" name="exptime"/>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="rot"/>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>time_sec</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_2">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>time_hms</string>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QWebEngineView" name="aladin_view">
+            <property name="url">
+             <url>
+              <string>about:blank</string>
+             </url>
             </property>
            </widget>
           </item>
@@ -215,46 +319,102 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="setq">
+        <widget class="QWidget" name="details" native="true">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="font">
           <font>
-           <pointsize>22</pointsize>
+           <family>Noto Mono</family>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
-         <property name="text">
-          <string>Set queue</string>
-         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <layout class="QHBoxLayout" name="obj_layout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLineEdit" name="obj_name">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>Noto Mono</family>
+                <pointsize>11</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+               </font>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="resolve">
+              <property name="font">
+               <font>
+                <family>Noto Mono</family>
+                <pointsize>11</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Resolve</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <widget class="QTableView" name="details_table">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Noto Mono</family>
+              <pointsize>11</pointsize>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <attribute name="horizontalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+           </widget>
+          </item>
+         </layout>
         </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QWidget" name="obj" native="true">
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <item>
-        <widget class="QWebView" name="alladin" native="true">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="url" stdset="0">
-          <url>
-           <string>about:blank</string>
-          </url>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="details"/>
        </item>
       </layout>
      </widget>
@@ -266,18 +426,56 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1148</width>
-     <height>24</height>
+     <width>988</width>
+     <height>20</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuMenu">
+    <property name="title">
+     <string>Menu</string>
+    </property>
+    <addaction name="actionAdd_queue"/>
+    <addaction name="actionRemove_queue"/>
+    <addaction name="separator"/>
+    <addaction name="actionChange_name"/>
+    <addaction name="separator"/>
+    <addaction name="actionSet_queue"/>
+    <addaction name="separator"/>
+   </widget>
+   <addaction name="menuMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionAdd_queue">
+   <property name="text">
+    <string>Add queue</string>
+   </property>
+  </action>
+  <action name="actionRemove_queue">
+   <property name="text">
+    <string>Remove queue</string>
+   </property>
+  </action>
+  <action name="actionSet_queue">
+   <property name="text">
+    <string>Set queue</string>
+   </property>
+  </action>
+  <action name="actionChange_name">
+   <property name="text">
+    <string>Change name</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QWebView</class>
+   <class>QWebEngineView</class>
    <extends>QWidget</extends>
-   <header location="global">QtWebKitWidgets/QWebView</header>
+   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
   </customwidget>
  </customwidgets>
  <resources/>
