@@ -20,7 +20,6 @@ from ui_qman_pyqt import Ui_MainWindow
 import pandas as pd
 from datetime import datetime as dt
 import logging
-import os
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s', filemode='w', filename='qman.log')
 # os.environ['QT_MAC_WANTS_LAYER'] = '1'    # to work on MacOS
