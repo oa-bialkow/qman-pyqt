@@ -14,17 +14,12 @@ authors:
 
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QInputDialog
-from widgets import qrow_widget, TableModel, CurrentQueue, update_table, ObjectInfo
-from PySide6.QtCore import SIGNAL, Qt, QUrl
+from widgets import qrow_widget, CurrentQueue, update_table, ObjectInfo, SkyView
+from PySide6.QtCore import SIGNAL, Qt
 from ui_qman_pyqt import Ui_MainWindow
 import pandas as pd
-import numpy as np
 from datetime import datetime as dt
 import logging
-from astropy.coordinates import Angle, SkyCoord, EarthLocation, AltAz, ICRS, name_resolve
-# from astropy.time import Time
-from astropy import units as u
-# import ephem
 import os
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s', filemode='w', filename='qman.log')
@@ -40,6 +35,8 @@ class QmanMain(QMainWindow):
         self.qrows = []
         logging.info(f'QMAN started!')
         logging.info(f'CCDOBS file: {self.ccdobs}')
+        # SkyView instance
+        self.skyview = SkyView(self.ui)
 
         # Read objpos.dat file
         self.objpos = pd.read_csv('objpos.dat', sep='\s+', header=None,
@@ -47,8 +44,6 @@ class QmanMain(QMainWindow):
                                          'DECd', 'DECm', 'DECs', 'Epoch', 
                                          'Pier side', 'Guiding star', 'Guider position'],
                                   comment='#', skipinitialspace=True)
-        # print(self.objpos)
-
         # Fill QListWidget with objects
         for obj in sorted(self.qobjs['Object'].unique(), key=str.lower):
             self.ui.qobjs.addItem(obj)
@@ -73,6 +68,7 @@ class QmanMain(QMainWindow):
         self.ui.resolve.clicked.connect(self.get_obj_data)
         # Connect Filter inpout to function on text change
         self.ui.qobjs_filter.textChanged.connect(self.filter_qobjs)
+
 
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Ready!')
         logging.info(f'Ready!')
@@ -193,8 +189,8 @@ class QmanMain(QMainWindow):
         data = {'Object': [objname], 'RA': [''], 'DEC': [''], 'HA': [''], 'Alt': [''], 'Queue time': [str(qtime)]}
         self.table_data = pd.DataFrame.from_dict(data)
         # Get object data from astropy
-        my_obj = ObjectInfo(objname)
-        obj_alt, obj_ha, ra, dec = my_obj.get_info()
+        self.my_obj = ObjectInfo(objname)
+        obj_alt, obj_ha, ra, dec = self.my_obj.get_info()
         self.table_data['HA'] = f'{obj_ha}'
         self.table_data['Alt'] = f'{obj_alt}'
         if objname != '0_CURRENT_QUEUE' and objname not in self.objpos['Object'].values:

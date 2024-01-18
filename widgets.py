@@ -11,6 +11,9 @@ from datetime import datetime as dt
 import ephem
 from astropy.time import Time
 import numpy as np
+from baladin import Aladin
+import os
+
 class ObjectInfo:
     def __init__(self, objname):
         self.objname = objname
@@ -22,24 +25,25 @@ class ObjectInfo:
         
     def get_info(self):
         try:
-            c = SkyCoord.from_name(self.objname)
+            self.c = SkyCoord.from_name(self.objname)
             logging.info(f'{self.objname} resolved!')
         except name_resolve.NameResolveError:
+            self.c = SkyCoord.from_name('M1')
             logging.info(f'{self.objname} not found!')
             return ('', '', '', '')
         obs_location = EarthLocation(lat=self.myobs.lat*u.deg, lon=self.myobs.lon*u.deg, height=self.myobs.elevation*u.m)
         obs_time = dt.utcnow()
         obs_altaz = AltAz(location=obs_location, obstime=obs_time, pressure=1010.0 * u.hPa, temperature=10.0 * u.deg_C,
             relative_humidity=20, obswl=0.6 * u.micron)
-        obj_altaz = c.transform_to(obs_altaz)
+        obj_altaz = self.c.transform_to(obs_altaz)
         # obj_alt = obj_altaz.alt.to_string(u.deg, sep=':', precision=0)
         obj_alt = f'{obj_altaz.alt.degree:.2f}°'
         # obj_az = obj_altaz.az.to_string(u.deg, sep=':', precision=0)
-        obj_radian = Angle(((self.myobs.sidereal_time() - c.ra.to(u.rad).value) % (2*np.pi))*u.rad)
+        obj_radian = Angle(((self.myobs.sidereal_time() - self.c.ra.to(u.rad).value) % (2*np.pi))*u.rad)
         obj_hms = obj_radian.hms
         obj_ha = f'{obj_hms.h:02.0f}h {obj_hms.m:02.0f}m {obj_hms.s:02.0f}s'
-        ra = c.ra.to_string(u.hour, sep=':', precision=0)
-        dec = c.dec.to_string(u.deg, sep=':', precision=0)
+        ra = self.c.ra.to_string(u.hour, sep=':', precision=0)
+        dec = self.c.dec.to_string(u.deg, sep=':', precision=0)
         return (obj_alt, obj_ha, ra, dec)
 
 def update_table(func):
@@ -50,6 +54,7 @@ def update_table(func):
         obj.ui.details_table.resizeRowsToContents()
         header = obj.ui.details_table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
+        obj.skyview.create_aladin_view(obj.my_obj.c.ra.deg, obj.my_obj.c.dec.deg)
     return wrapper_update_table
 
 class CurrentQueue:
@@ -171,3 +176,18 @@ class TableModel(QtCore.QAbstractTableModel):
 
     def columnCount(self, parent=QtCore.QModelIndex()):
         return len(self._data.columns.values)
+    
+class SkyView:
+
+    def __init__(self, ui):
+        self.aladin_path = os.path.join('assets', 'index.html')
+        self.ui = ui
+
+    def create_aladin_view(self, ra, dec):
+        a = Aladin(target=f'{ra} {dec}', width=self.ui.aladin_view.width()*0.94, height=self.ui.aladin_view.height()*0.9, fov=12*u.arcmin.to(u.deg))
+        a.b1 = a.b1.replace(', cooFrame: "ICRSd"', ', cooFrame: "ICRSd", fullScreen: true') # make it fullscreen
+        a.create()
+        a.save(self.aladin_path)
+        self.ui.aladin_view.setHtml(open(self.aladin_path).read())
+        # self.aladin.loadFinished.connect(lambda: self.aladin_page_loaded())
+    

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'qman-pyqt.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.5.2
+## Created by: Qt User Interface Compiler version 6.6.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -16,6 +16,7 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
+from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QGridLayout, QHBoxLayout,
     QHeaderView, QLayout, QLineEdit, QListWidget,
     QListWidgetItem, QMainWindow, QMenu, QMenuBar,
@@ -33,7 +34,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
         font = QFont()
-        font.setFamilies([u"Noto Mono for Powerline"])
+        font.setFamilies([u"Noto Mono"])
         MainWindow.setFont(font)
         self.actionAdd_queue = QAction(MainWindow)
         self.actionAdd_queue.setObjectName(u"actionAdd_queue")
@@ -58,6 +59,7 @@ class Ui_MainWindow(object):
         self.qlist.setContentsMargins(2, 2, -1, -1)
         self.qobjs_filter = QLineEdit(self.centralwidget)
         self.qobjs_filter.setObjectName(u"qobjs_filter")
+        self.qobjs_filter.setFont(font)
 
         self.qlist.addWidget(self.qobjs_filter)
 
@@ -66,7 +68,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.qobjs.sizePolicy().hasHeightForWidth())
         self.qobjs.setSizePolicy(sizePolicy)
         font1 = QFont()
-        font1.setFamilies([u"Monaco"])
+        font1.setFamilies([u"Noto Mono"])
         font1.setPointSize(11)
         font1.setBold(False)
         font1.setItalic(False)
@@ -82,7 +84,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.qview.sizePolicy().hasHeightForWidth())
         self.qview.setSizePolicy(sizePolicy)
         font2 = QFont()
-        font2.setFamilies([u"Monaco"])
+        font2.setFamilies([u"Noto Mono"])
         font2.setBold(False)
         font2.setItalic(False)
         self.qview.setFont(font2)
@@ -100,10 +102,15 @@ class Ui_MainWindow(object):
         self.qscroll2.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
         self.queue = QWidget()
         self.queue.setObjectName(u"queue")
-        self.queue.setGeometry(QRect(0, 0, 328, 550))
+        self.queue.setGeometry(QRect(0, 0, 328, 556))
         sizePolicy.setHeightForWidth(self.queue.sizePolicy().hasHeightForWidth())
         self.queue.setSizePolicy(sizePolicy)
-        self.queue.setFont(font1)
+        font3 = QFont()
+        font3.setFamilies([u"Monaco"])
+        font3.setPointSize(11)
+        font3.setBold(False)
+        font3.setItalic(False)
+        self.queue.setFont(font3)
         self.verticalLayout_5 = QVBoxLayout(self.queue)
         self.verticalLayout_5.setSpacing(0)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
@@ -128,12 +135,12 @@ class Ui_MainWindow(object):
         self.setq.setObjectName(u"setq")
         sizePolicy1.setHeightForWidth(self.setq.sizePolicy().hasHeightForWidth())
         self.setq.setSizePolicy(sizePolicy1)
-        font3 = QFont()
-        font3.setFamilies([u"Monaco"])
-        font3.setPointSize(30)
-        font3.setBold(False)
-        font3.setItalic(False)
-        self.setq.setFont(font3)
+        font4 = QFont()
+        font4.setFamilies([u"Noto Mono"])
+        font4.setPointSize(30)
+        font4.setBold(False)
+        font4.setItalic(False)
+        self.setq.setFont(font4)
 
         self.verticalLayout.addWidget(self.setq)
 
@@ -157,6 +164,16 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.aladin.sizePolicy().hasHeightForWidth())
         self.aladin.setSizePolicy(sizePolicy)
         self.aladin.setFont(font1)
+        self.gridLayout_2 = QGridLayout(self.aladin)
+        self.gridLayout_2.setSpacing(0)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.aladin_view = QWebEngineView(self.aladin)
+        self.aladin_view.setObjectName(u"aladin_view")
+        self.aladin_view.setUrl(QUrl(u"about:blank"))
+
+        self.gridLayout_2.addWidget(self.aladin_view, 0, 0, 1, 1)
+
 
         self.verticalLayout_2.addWidget(self.aladin)
 
@@ -164,6 +181,7 @@ class Ui_MainWindow(object):
         self.details.setObjectName(u"details")
         sizePolicy.setHeightForWidth(self.details.sizePolicy().hasHeightForWidth())
         self.details.setSizePolicy(sizePolicy)
+        self.details.setFont(font2)
         self.gridLayout = QGridLayout(self.details)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -171,7 +189,7 @@ class Ui_MainWindow(object):
         self.obj_layout = QHBoxLayout()
         self.obj_layout.setSpacing(0)
         self.obj_layout.setObjectName(u"obj_layout")
-        self.obj_layout.setContentsMargins(10, -1, -1, -1)
+        self.obj_layout.setContentsMargins(0, -1, -1, -1)
         self.obj_name = QLineEdit(self.details)
         self.obj_name.setObjectName(u"obj_name")
         sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -213,7 +231,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 988, 24))
+        self.menubar.setGeometry(QRect(0, 0, 988, 20))
         self.menuMenu = QMenu(self.menubar)
         self.menuMenu.setObjectName(u"menuMenu")
         MainWindow.setMenuBar(self.menubar)
