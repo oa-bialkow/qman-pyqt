@@ -139,7 +139,6 @@ class QmanMain(QMainWindow):
             self.ui.qobjs.currentItem().setText(text)
             self.ui.qobjs.setCurrentItem(self.ui.qobjs.findItems(text, Qt.MatchExactly)[0])
             self.qobjs = self.qobjs.replace(old_name, text)
-            print(self.qobjs[self.qobjs['Object'] == text])
             self.on_qlist_item_clicked(self.ui.qobjs.currentItem())
             self.save_queue()
             self.ui.qobjs.sortItems()
