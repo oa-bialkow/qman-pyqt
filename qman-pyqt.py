@@ -63,6 +63,8 @@ class QmanMain(QMainWindow):
         self.ui.add_row.clicked.connect(self.add_row)
         # Connect Remove Queue button to function
         self.ui.actionRemove_queue.triggered.connect(self.remove_queue)
+        # Connect Change Name button to function
+        self.ui.actionChange_name.triggered.connect(self.change_name)
         # Connect Resolve button to function
         self.ui.resolve.clicked.connect(self.get_obj_data)
         # Connect Filter inpout to function on text change
@@ -123,11 +125,28 @@ class QmanMain(QMainWindow):
             toadd = CurrentQueue(self.qrows, text).queue
             self.qobjs = pd.concat([toadd, self.qobjs])
             self.save_queue()
-        self.ui.qobjs.sortItems()
-        self.ui.qobjs.setCurrentItem(self.ui.qobjs.findItems(text, Qt.MatchExactly)[0])
-        self.on_qlist_item_clicked(self.ui.qobjs.currentItem())
-        self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Queue for {text} added!')
-        logging.info(f'Queue for {text} added!')
+            self.ui.qobjs.sortItems()
+            self.ui.qobjs.setCurrentItem(self.ui.qobjs.findItems(text, Qt.MatchExactly)[0])
+            self.on_qlist_item_clicked(self.ui.qobjs.currentItem())
+            self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Queue for {text} added!')
+            logging.info(f'Queue for {text} added!')
+    
+    def change_name(self):
+        # show dialog with name input
+        text, ok = QInputDialog.getText(self, 'Change name', 'Object name:')
+        if ok:
+            old_name = self.ui.qobjs.currentItem().text()
+            self.ui.qobjs.currentItem().setText(text)
+            self.ui.qobjs.setCurrentItem(self.ui.qobjs.findItems(text, Qt.MatchExactly)[0])
+            print(self.qobjs[self.qobjs['Object'] == old_name])
+            self.qobjs = self.qobjs.replace(old_name, text)
+            # print(self.qobjs[self.qobjs['Object'] == old_name])
+            print(self.qobjs[self.qobjs['Object'] == text])
+            self.on_qlist_item_clicked(self.ui.qobjs.currentItem())
+            self.save_queue()
+            self.ui.qobjs.sortItems()
+            self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Name changed to {text}!')
+            logging.info(f'Name changed to {text}!')
     
     @update_table
     def add_row(self):
