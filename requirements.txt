@@ -6,11 +6,6 @@ numpy==1.26.3
 packaging==23.2
 pandas==2.1.4
 pyerfa==2.0.1.1
-PyQt5-Qt5==5.15.12
-PyQt5-sip==12.13.0
-PyQt6==6.6.1
-PyQt6-Qt6==6.6.1
-PyQt6-sip==13.6.0
 PySide6==6.5.2
 PySide6-Addons==6.5.2
 PySide6-Essentials==6.5.2
