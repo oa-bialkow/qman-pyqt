@@ -87,7 +87,7 @@ class QmanMain(QMainWindow):
     def save_queue(self):
         # Save all queues to file
         self.current_queue = self.qobjs[self.qobjs['Object'] == '0_CURRENT_QUEUE']
-        with open('ccdobs.lst', 'w') as f:
+        with open(self.ccdobs, 'w') as f:
             for n, row in self.current_queue.iterrows():
                 row['Filter'] = 'Ha narrow' if row['Filter'] == 'Han' else row['Filter']
                 row['Filter'] = 'Ha wide' if row['Filter'] == 'Haw' else row['Filter']
