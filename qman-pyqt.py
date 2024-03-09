@@ -38,7 +38,7 @@ class QmanMain(QMainWindow):
         self.skyview = SkyView(self.ui)
 
         # Read objpos.dat file
-        self.objpos = pd.read_csv('objpos.dat', sep='\s+', header=None,
+        self.objpos = pd.read_csv(cargs[2], sep='\s+', header=None,
                                   names=['Object', 'RAd', 'RAm', 'RAs', 
                                          'DECd', 'DECm', 'DECs', 'Epoch', 
                                          'Pier side', 'Guiding star', 'Guider position'],
@@ -233,7 +233,7 @@ class QmanMain(QMainWindow):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("\n Usage: qman-pyqt.py <ccdobs.lst>")
+        print("\n Usage: qman-pyqt.py <ccdobs.lst> <objpos.dat>")
         print(" Version of 12.01.2024 by K. Kotysz: k.kotysz(at)gmail.com")
         print("                          P. Mikolajczyk: przeminio(at)gmail.com")
         sys.exit(1)
