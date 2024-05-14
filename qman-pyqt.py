@@ -204,21 +204,14 @@ class QmanMain(QMainWindow):
         data = {'Object': [objname], 'RA': [''], 'DEC': [''], 'HA': [''], 'Alt': [''], 'Queue time': [str(qtime)]}
         self.table_data = pd.DataFrame.from_dict(data)
         # Get object data from astropy
-        self.my_obj = ObjectInfo(objname)
-        obj_alt, obj_ha, ra, dec = self.my_obj.get_info()
+        self.my_obj = ObjectInfo(objname, self.objpos)
+        obj_alt, obj_ha, ra, dec, found = self.my_obj.get_info()
+        self.table_data['RA'] = f'{ra} (J2000)' if found else f'{ra} (J2000)*'
+        self.table_data['DEC'] = f'{dec} (J2000)' if found else f'{dec} (J2000)*'
         self.table_data['HA'] = f'{obj_ha}'
         self.table_data['Alt'] = f'{obj_alt}'
-        if objname != '0_CURRENT_QUEUE' and objname not in self.objpos['Object'].values:
-            self.table_data['RA'] = f'{ra} (J2000)*'
-            self.table_data['DEC'] = f'{dec} (J2000)*'
-        elif objname != '0_CURRENT_QUEUE':
-            obj = self.objpos[self.objpos['Object'] == objname]
-            ra = f"{int(obj['RAd'].values[0]):2d}:{int(obj['RAm'].values[0]):02d}:{int(obj['RAs'].values[0]):02d} (J{obj['Epoch'].values[0]})"
-            dec = f"{obj['DECd'].values[0].zfill(2)}:{int(obj['DECm'].values[0]):02d}:{int(obj['DECs'].values[0]):02d} (J{obj['Epoch'].values[0]})"
-            self.table_data['RA'] = ra
-            self.table_data['DEC'] = dec
-            self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} {objname} found in objpos.dat!')
-            logging.info(f'{objname} found in objpos.dat!')
+        # if objname != '0_CURRENT_QUEUE' and objname not in self.objpos['Object'].values:
+        # elif objname != '0_CURRENT_QUEUE':
         return self
 
     def filter_qobjs(self):

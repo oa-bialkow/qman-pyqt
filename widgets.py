@@ -14,23 +14,50 @@ import numpy as np
 from baladin import Aladin
 import os
 
+'''
+Function to normalize object names - remove spaces, underscores, dashes, brackets, commas, and equal signs and convert to lowercase
+This is used to compare the object name in the queue with the object name in the objpos.dat file
+The function returns a tuple with two options to handle different naming conventions
+'''
+def normalize_objname(name):
+    opt1 = name.replace(' ', '').split('_')[0].split('-')[0].split('(')[0].split('[')[0].split(',')[0].split('=')[0].lower()
+    opt2 = name.replace('_', '').split('_')[0].split('-')[0].split('(')[0].split('[')[0].split(',')[0].split('=')[0].lower()
+    return (opt1, opt2)
+
 class ObjectInfo:
-    def __init__(self, objname):
+    def __init__(self, objname, objpos):
         self.objname = objname
+        self.objpos = objpos
         self.myobs = ephem.Observer()
         self.myobs.lon = 16.656667
         self.myobs.lat = 51.476111
         self.myobs.elevation = 130
         self.myobs.date = str(Time(dt.utcnow(), scale='ut1', location=(self.myobs.lon * u.deg, self.myobs.lat * u.deg)))  # Time in UT
-        
+
     def get_info(self):
-        try:
-            self.c = SkyCoord.from_name(self.objname)
-            logging.info(f'{self.objname} resolved!')
-        except name_resolve.NameResolveError:
-            self.c = SkyCoord.from_name('M1')
-            logging.info(f'{self.objname} not found!')
-            return ('', '', '', '')
+        norm_obj_name = normalize_objname(self.objname) # Normalize the object name (tuple with two options)
+        norm_objpos = self.objpos['Object'].apply(normalize_objname).values # Normalize the object names in objpos.dat (list of tuples)
+        flattened_list = [item for sublist in norm_objpos for item in sublist] # Flatten the list of tuples
+        if any(obj in flattened_list for obj in norm_obj_name) and self.objname != '0_CURRENT_QUEUE': # Check if any of the normalized object names is in the list of normalized object names
+            mask = [obj in flattened_list for obj in norm_obj_name] # Create a mask to find the matching object name
+            matched_name = np.array(norm_obj_name)[mask][0] # Extract the matched object name
+            matching_row_index = self.objpos.index[self.objpos['Object'].apply(normalize_objname).apply(lambda x: matched_name in x)].tolist() # Find the row index where the tuple contains the desired string
+            obj = self.objpos.iloc[matching_row_index] # Extract the matching row
+            ra = f"{int(obj['RAd'].values[0]):2d}:{int(obj['RAm'].values[0]):02d}:{int(obj['RAs'].values[0]):02d} (J{obj['Epoch'].values[0]})"
+            dec = f"{obj['DECd'].values[0].zfill(2)}:{int(obj['DECm'].values[0]):02d}:{int(obj['DECs'].values[0]):02d} (J{obj['Epoch'].values[0]})"
+            self.c = SkyCoord(ra=ra.split()[0], dec=dec.split()[0], frame='icrs', unit=(u.hourangle, u.deg))
+            found = True
+            logging.info(f'{self.objname} found in objpos.dat!')
+        else:
+            try:
+                self.c = SkyCoord.from_name(self.objname)
+                logging.info(f'{self.objname} resolved!')
+                found = False
+            except name_resolve.NameResolveError:
+                self.c = SkyCoord.from_name('M1')
+                logging.info(f'{self.objname} not found!')
+                return ('--', '--', '--', '--', False)
+
         obs_location = EarthLocation(lat=self.myobs.lat*u.deg, lon=self.myobs.lon*u.deg, height=self.myobs.elevation*u.m)
         obs_time = dt.utcnow()
         obs_altaz = AltAz(location=obs_location, obstime=obs_time, pressure=1010.0 * u.hPa, temperature=10.0 * u.deg_C,
@@ -44,7 +71,7 @@ class ObjectInfo:
         obj_ha = f'{obj_hms.h:02.0f}h {obj_hms.m:02.0f}m {obj_hms.s:02.0f}s'
         ra = self.c.ra.to_string(u.hour, sep=':', precision=0)
         dec = self.c.dec.to_string(u.deg, sep=':', precision=0)
-        return (obj_alt, obj_ha, ra, dec)
+        return (obj_alt, obj_ha, ra, dec, found)
 
 def update_table(func):
     def wrapper_update_table(*args, **kwargs):
