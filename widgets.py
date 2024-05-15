@@ -59,16 +59,19 @@ class ObjectInfo:
                 return ('--', '--', '--', '--', False)
 
         obs_location = EarthLocation(lat=self.myobs.lat*u.deg, lon=self.myobs.lon*u.deg, height=self.myobs.elevation*u.m)
-        obs_time = dt.utcnow()
+        obs_time = Time(dt.utcnow(), scale='ut1', location=obs_location)
         obs_altaz = AltAz(location=obs_location, obstime=obs_time, pressure=1010.0 * u.hPa, temperature=10.0 * u.deg_C,
             relative_humidity=20, obswl=0.6 * u.micron)
         obj_altaz = self.c.transform_to(obs_altaz)
         # obj_alt = obj_altaz.alt.to_string(u.deg, sep=':', precision=0)
         obj_alt = f'{obj_altaz.alt.degree:.2f}°'
         # obj_az = obj_altaz.az.to_string(u.deg, sep=':', precision=0)
-        obj_radian = Angle(((self.myobs.sidereal_time() - self.c.ra.to(u.rad).value) % (2*np.pi))*u.rad)
-        obj_hms = obj_radian.hms
-        obj_ha = f'{obj_hms.h:02.0f}h {obj_hms.m:02.0f}m {obj_hms.s:02.0f}s'
+        sidereal_time = obs_time.sidereal_time('apparent', obs_location.lon)
+        if sidereal_time - self.c.ra < 0:
+            obj_hms = 360*u.deg + sidereal_time - self.c.ra
+        else:
+            obj_hms = sidereal_time - self.c.ra
+        obj_ha = f'{obj_hms.hms[0]:02.0f}h {obj_hms.hms[1]:02.0f}m {obj_hms.hms[2]:02.0f}s'
         ra = self.c.ra.to_string(u.hour, sep=':', precision=0)
         dec = self.c.dec.to_string(u.deg, sep=':', precision=0)
         return (obj_alt, obj_ha, ra, dec, found)
