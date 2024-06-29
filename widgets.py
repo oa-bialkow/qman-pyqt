@@ -33,6 +33,11 @@ class ObjectInfo:
         self.myobs.lat = 51.476111
         self.myobs.elevation = 130
         self.myobs.date = str(Time(dt.utcnow(), scale='ut1', location=(self.myobs.lon * u.deg, self.myobs.lat * u.deg)))  # Time in UT
+        self.ra = None
+        self.dec = None
+        self.alt = None
+        self.az = None
+        self.ha = None
 
     def get_info(self):
         norm_obj_name = normalize_objname(self.objname) # Normalize the object name (tuple with two options)
@@ -47,6 +52,7 @@ class ObjectInfo:
             dec = f"{obj['DECd'].values[0].zfill(2)}:{int(obj['DECm'].values[0]):02d}:{int(obj['DECs'].values[0]):02d} (J{obj['Epoch'].values[0]})"
             self.c = SkyCoord(ra=ra.split()[0], dec=dec.split()[0], frame='icrs', unit=(u.hourangle, u.deg))
             found = True
+            self.objname = matched_name
             logging.info(f'{self.objname} found in objpos.dat!')
         else:
             try:
@@ -56,7 +62,7 @@ class ObjectInfo:
             except name_resolve.NameResolveError:
                 self.c = SkyCoord.from_name('M1')
                 logging.info(f'{self.objname} not found!')
-                return ('--', '--', '--', '--', False)
+                return ('--', '--', '--', '--', '--', False)
 
         obs_location = EarthLocation(lat=self.myobs.lat*u.deg, lon=self.myobs.lon*u.deg, height=self.myobs.elevation*u.m)
         obs_time = Time(dt.utcnow(), scale='ut1', location=obs_location)
@@ -65,16 +71,21 @@ class ObjectInfo:
         obj_altaz = self.c.transform_to(obs_altaz)
         # obj_alt = obj_altaz.alt.to_string(u.deg, sep=':', precision=0)
         obj_alt = f'{obj_altaz.alt.degree:.2f}°'
-        # obj_az = obj_altaz.az.to_string(u.deg, sep=':', precision=0)
+        obj_az = obj_altaz.az.to_string(u.deg, sep=':', precision=0)
         sidereal_time = obs_time.sidereal_time('apparent', obs_location.lon)
         if sidereal_time - self.c.ra < 0:
             obj_hms = 360*u.deg + sidereal_time - self.c.ra
         else:
             obj_hms = sidereal_time - self.c.ra
-        obj_ha = f'{obj_hms.hms[0]:02.0f}h {obj_hms.hms[1]:02.0f}m {obj_hms.hms[2]:02.0f}s'
+        obj_ha = f'{obj_hms.hms[0]:02.0f}:{obj_hms.hms[1]:02.0f}:{obj_hms.hms[2]:02.0f}'
         ra = self.c.ra.to_string(u.hour, sep=':', precision=0)
-        dec = self.c.dec.to_string(u.deg, sep=':', precision=0)
-        return (obj_alt, obj_ha, ra, dec, found)
+        dec = self.c.dec.to_string(u.deg, sep=':', precision=0, pad=True, alwayssign=True)
+        self.ra = self.c.ra.value
+        self.dec = self.c.dec.value
+        self.ha = obj_hms.degree
+        self.alt = obj_altaz.alt.degree
+        self.az = obj_altaz.az.degree
+        return (obj_alt, obj_az, obj_ha, ra, dec, found)
 
 def update_table(func):
     def wrapper_update_table(*args, **kwargs):

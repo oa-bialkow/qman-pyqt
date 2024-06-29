@@ -13,11 +13,14 @@ authors:
 """
 
 import sys
+import os
 from PySide6.QtWidgets import QApplication, QMainWindow, QInputDialog
 from widgets import qrow_widget, CurrentQueue, update_table, ObjectInfo, SkyView
 from PySide6.QtCore import SIGNAL, Qt
 from ui_qman_pyqt import Ui_MainWindow
 import pandas as pd
+import numpy as np
+import json
 from datetime import datetime as dt
 import logging
 
@@ -81,6 +84,18 @@ class QmanMain(QMainWindow):
         self.qobjs = self.qobjs[self.qobjs['Object'] != '0_CURRENT_QUEUE'] # remove all 0_CURRENT_QUEUEs from list
         self.qobjs = pd.concat([curr_q.queue, self.qobjs]) # add current queue to list
         self.save_queue()
+        rtcoor_path = '/dev/shm/rtcoor.data' if os.path.exists('/dev/shm') else 'rtcoor.data'
+        with open(rtcoor_path, 'w') as f:
+            ra = self.my_obj.ra
+            json.dump({'ra': np.round(self.my_obj.ra, 5), 
+                       'dec': np.round(self.my_obj.dec, 5),
+                       'dec_sex': self.table_data['DEC'].values[0].split()[0],
+                       'ha': np.round(self.my_obj.ha, 5),
+                       'ha_sex': self.table_data['HA'].values[0].split()[0],
+                       'alt': np.round(self.my_obj.alt, 1), 
+                       'az': np.round(self.my_obj.az, 1), 
+                       'objname': self.my_obj.objname},
+                       f)
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Queue set!')
         logging.info(f'Queue set!')
 
@@ -205,7 +220,7 @@ class QmanMain(QMainWindow):
         self.table_data = pd.DataFrame.from_dict(data)
         # Get object data from astropy
         self.my_obj = ObjectInfo(objname, self.objpos)
-        obj_alt, obj_ha, ra, dec, found = self.my_obj.get_info()
+        obj_alt, obj_az, obj_ha, ra, dec, found = self.my_obj.get_info()
         self.table_data['RA'] = f'{ra} (J2000)' if found else f'{ra} (J2000)*'
         self.table_data['DEC'] = f'{dec} (J2000)' if found else f'{dec} (J2000)*'
         self.table_data['HA'] = f'{obj_ha}'
