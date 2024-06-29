@@ -94,12 +94,12 @@ class QmanMain(QMainWindow):
         rtcoor_path = '/dev/shm/rtcoor.data' if os.path.exists('/dev/shm') else 'rtcoor.data'
         try:
             with open(rtcoor_path, 'w') as f:
-                self.my_obj.get_info()
+                obj_alt, obj_az, obj_ha, ra, dec, found = self.my_obj.get_info()
                 json.dump({'ra': np.round(self.my_obj.ra, 5), 
                         'dec': np.round(self.my_obj.dec, 5),
-                        'dec_sex': self.table_data['DEC'].values[0].split()[0],
+                        'dec_sex': dec.split()[0],
                         'ha': np.round(self.my_obj.ha, 5),
-                        'ha_sex': self.table_data['HA'].values[0].split()[0],
+                        'ha_sex': obj_ha,
                         'alt': np.round(self.my_obj.alt, 1), 
                         'az': np.round(self.my_obj.az, 1), 
                         'objname': self.table_data['Object'].values[0]},
