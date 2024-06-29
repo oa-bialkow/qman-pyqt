@@ -45,8 +45,8 @@ class ObjectInfo:
         flattened_list = [item for sublist in norm_objpos for item in sublist] # Flatten the list of tuples
         if any(obj in flattened_list for obj in norm_obj_name) and self.objname != '0_CURRENT_QUEUE': # Check if any of the normalized object names is in the list of normalized object names
             mask = [obj in flattened_list for obj in norm_obj_name] # Create a mask to find the matching object name
-            print(np.array(norm_obj_name))
-            print(mask)
+            # print(np.array(norm_obj_name))
+            # print(mask)
             lp = 0
             for i, obj in enumerate(norm_obj_name):
                 ln = len(obj)
