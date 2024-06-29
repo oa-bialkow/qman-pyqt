@@ -90,24 +90,28 @@ class QmanMain(QMainWindow):
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Queue set!')
         logging.info(f'Queue set!')
 
+    @update_table
     def json_dump(self):
         rtcoor_path = '/dev/shm/rtcoor.data' if os.path.exists('/dev/shm') else 'rtcoor.data'
         try:
             with open(rtcoor_path, 'w') as f:
-                obj_alt, obj_az, obj_ha, ra, dec, found = self.my_obj.get_info()
+                obj_alt, obj_az, obj_ha_sex, ra, dec_sex, found = self.my_obj.get_info()
                 json.dump({'ra': np.round(self.my_obj.ra, 5), 
                         'dec': np.round(self.my_obj.dec, 5),
-                        'dec_sex': dec.split()[0],
+                        'dec_sex': dec_sex.split()[0],
                         'ha': np.round(self.my_obj.ha, 5),
-                        'ha_sex': obj_ha,
+                        'ha_sex': obj_ha_sex,
                         'alt': np.round(self.my_obj.alt, 1), 
                         'az': np.round(self.my_obj.az, 1), 
                         'objname': self.table_data['Object'].values[0]},
                         f)
+            self.table_data['HA'] = f'{obj_ha_sex}'
+            self.table_data['Alt'] = f'{obj_alt}'
         except Exception as e:
             logging.error(f'Error: {e}')
             self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Error: {e}')
-
+        return self
+    
     def save_queue(self):
         # Save all queues to file
         self.current_queue = self.qobjs[self.qobjs['Object'] == '0_CURRENT_QUEUE']
@@ -193,6 +197,7 @@ class QmanMain(QMainWindow):
             self.qrows.append(new_qrow)
             self.ui.queue.layout().addWidget(new_qrow)
         self.get_obj_data()
+        self.skyview.create_aladin_view(self.my_obj.c.ra.deg, self.my_obj.c.dec.deg) # create new Aladin view
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Queue for {item.text()} loaded!')
         logging.info(f'Queue for {item.text()} loaded!')
 

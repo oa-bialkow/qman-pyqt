@@ -45,6 +45,15 @@ class ObjectInfo:
         flattened_list = [item for sublist in norm_objpos for item in sublist] # Flatten the list of tuples
         if any(obj in flattened_list for obj in norm_obj_name) and self.objname != '0_CURRENT_QUEUE': # Check if any of the normalized object names is in the list of normalized object names
             mask = [obj in flattened_list for obj in norm_obj_name] # Create a mask to find the matching object name
+            print(np.array(norm_obj_name))
+            print(mask)
+            lp = 0
+            for i, obj in enumerate(norm_obj_name):
+                ln = len(obj)
+                if ln > lp:
+                    lp = ln
+                    mask = [False]*len(norm_obj_name)
+                    mask[i] = True
             matched_name = np.array(norm_obj_name)[mask][0] # Extract the matched object name
             matching_row_index = self.objpos.index[self.objpos['Object'].apply(normalize_objname).apply(lambda x: matched_name in x)].tolist() # Find the row index where the tuple contains the desired string
             obj = self.objpos.iloc[matching_row_index] # Extract the matching row
@@ -52,6 +61,7 @@ class ObjectInfo:
             dec = f"{obj['DECd'].values[0].zfill(2)}:{int(obj['DECm'].values[0]):02d}:{int(obj['DECs'].values[0]):02d} (J{obj['Epoch'].values[0]})"
             self.c = SkyCoord(ra=ra.split()[0], dec=dec.split()[0], frame='icrs', unit=(u.hourangle, u.deg))
             found = True
+            print(self.objname, obj)
             logging.info(f'{self.objname} found in objpos.dat!')
         else:
             try:
@@ -94,7 +104,7 @@ def update_table(func):
         obj.ui.details_table.resizeRowsToContents()
         header = obj.ui.details_table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
-        obj.skyview.create_aladin_view(obj.my_obj.c.ra.deg, obj.my_obj.c.dec.deg)
+        # obj.skyview.create_aladin_view(obj.my_obj.c.ra.deg, obj.my_obj.c.dec.deg)
     return wrapper_update_table
 
 class CurrentQueue:
