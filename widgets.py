@@ -52,7 +52,6 @@ class ObjectInfo:
             dec = f"{obj['DECd'].values[0].zfill(2)}:{int(obj['DECm'].values[0]):02d}:{int(obj['DECs'].values[0]):02d} (J{obj['Epoch'].values[0]})"
             self.c = SkyCoord(ra=ra.split()[0], dec=dec.split()[0], frame='icrs', unit=(u.hourangle, u.deg))
             found = True
-            self.objname = matched_name
             logging.info(f'{self.objname} found in objpos.dat!')
         else:
             try:

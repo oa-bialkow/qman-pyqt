@@ -16,7 +16,7 @@ import sys
 import os
 from PySide6.QtWidgets import QApplication, QMainWindow, QInputDialog
 from widgets import qrow_widget, CurrentQueue, update_table, ObjectInfo, SkyView
-from PySide6.QtCore import SIGNAL, Qt
+from PySide6.QtCore import SIGNAL, Qt, QTimer
 from ui_qman_pyqt import Ui_MainWindow
 import pandas as pd
 import numpy as np
@@ -73,7 +73,10 @@ class QmanMain(QMainWindow):
         # Connect Filter inpout to function on text change
         self.ui.qobjs_filter.textChanged.connect(self.filter_qobjs)
 
-
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.json_dump)
+        self.timer.start(1000) 
+        
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Ready!')
         logging.info(f'Ready!')
 
@@ -84,20 +87,26 @@ class QmanMain(QMainWindow):
         self.qobjs = self.qobjs[self.qobjs['Object'] != '0_CURRENT_QUEUE'] # remove all 0_CURRENT_QUEUEs from list
         self.qobjs = pd.concat([curr_q.queue, self.qobjs]) # add current queue to list
         self.save_queue()
-        rtcoor_path = '/dev/shm/rtcoor.data' if os.path.exists('/dev/shm') else 'rtcoor.data'
-        with open(rtcoor_path, 'w') as f:
-            ra = self.my_obj.ra
-            json.dump({'ra': np.round(self.my_obj.ra, 5), 
-                       'dec': np.round(self.my_obj.dec, 5),
-                       'dec_sex': self.table_data['DEC'].values[0].split()[0],
-                       'ha': np.round(self.my_obj.ha, 5),
-                       'ha_sex': self.table_data['HA'].values[0].split()[0],
-                       'alt': np.round(self.my_obj.alt, 1), 
-                       'az': np.round(self.my_obj.az, 1), 
-                       'objname': self.my_obj.objname},
-                       f)
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Queue set!')
         logging.info(f'Queue set!')
+
+    def json_dump(self):
+        rtcoor_path = '/dev/shm/rtcoor.data' if os.path.exists('/dev/shm') else 'rtcoor.data'
+        try:
+            with open(rtcoor_path, 'w') as f:
+                self.my_obj.get_info()
+                json.dump({'ra': np.round(self.my_obj.ra, 5), 
+                        'dec': np.round(self.my_obj.dec, 5),
+                        'dec_sex': self.table_data['DEC'].values[0].split()[0],
+                        'ha': np.round(self.my_obj.ha, 5),
+                        'ha_sex': self.table_data['HA'].values[0].split()[0],
+                        'alt': np.round(self.my_obj.alt, 1), 
+                        'az': np.round(self.my_obj.az, 1), 
+                        'objname': self.table_data['Object'].values[0]},
+                        f)
+        except Exception as e:
+            logging.error(f'Error: {e}')
+            self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Error: {e}')
 
     def save_queue(self):
         # Save all queues to file
