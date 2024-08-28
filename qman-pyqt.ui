@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>988</width>
-    <height>681</height>
+    <width>1107</width>
+    <height>862</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -160,8 +160,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>328</width>
-            <height>556</height>
+            <width>367</width>
+            <height>733</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -261,10 +261,7 @@
         <bold>false</bold>
        </font>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <property name="spacing">
-        <number>0</number>
-       </property>
+      <layout class="QGridLayout" name="gridLayout_4">
        <property name="leftMargin">
         <number>0</number>
        </property>
@@ -277,7 +274,10 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
-       <item>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
         <widget class="QWidget" name="aladin" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -321,13 +321,19 @@
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="1" column="0" colspan="2">
         <widget class="QWidget" name="details" native="true">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>163</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -398,7 +404,7 @@
           <item row="1" column="0">
            <widget class="QTableView" name="details_table">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -419,6 +425,28 @@
          </layout>
         </widget>
        </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QWidget" name="skyplot" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>298</width>
+           <height>298</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>1400</width>
+           <height>1400</height>
+          </size>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
@@ -429,8 +457,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>988</width>
-     <height>20</height>
+     <width>1107</width>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu">

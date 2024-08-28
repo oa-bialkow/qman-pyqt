@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'qman-pyqt.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.6.1
+## Created by: Qt User Interface Compiler version 6.5.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -27,7 +27,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(988, 681)
+        MainWindow.resize(1107, 862)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -55,6 +55,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.qlist = QVBoxLayout()
+        self.qlist.setSpacing(0)
         self.qlist.setObjectName(u"qlist")
         self.qlist.setContentsMargins(2, 2, -1, -1)
         self.qobjs_filter = QLineEdit(self.centralwidget)
@@ -102,7 +103,7 @@ class Ui_MainWindow(object):
         self.qscroll2.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
         self.queue = QWidget()
         self.queue.setObjectName(u"queue")
-        self.queue.setGeometry(QRect(0, 0, 328, 556))
+        self.queue.setGeometry(QRect(0, 0, 367, 733))
         sizePolicy.setHeightForWidth(self.queue.sizePolicy().hasHeightForWidth())
         self.queue.setSizePolicy(sizePolicy)
         font3 = QFont()
@@ -155,10 +156,10 @@ class Ui_MainWindow(object):
         sizePolicy2.setHeightForWidth(self.obj.sizePolicy().hasHeightForWidth())
         self.obj.setSizePolicy(sizePolicy2)
         self.obj.setFont(font2)
-        self.verticalLayout_2 = QVBoxLayout(self.obj)
-        self.verticalLayout_2.setSpacing(0)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_4 = QGridLayout(self.obj)
+        self.gridLayout_4.setSpacing(0)
+        self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.gridLayout_4.setContentsMargins(0, 0, 0, 0)
         self.aladin = QWidget(self.obj)
         self.aladin.setObjectName(u"aladin")
         sizePolicy.setHeightForWidth(self.aladin.sizePolicy().hasHeightForWidth())
@@ -175,12 +176,16 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.aladin_view, 0, 0, 1, 1)
 
 
-        self.verticalLayout_2.addWidget(self.aladin)
+        self.gridLayout_4.addWidget(self.aladin, 0, 0, 1, 1)
 
         self.details = QWidget(self.obj)
         self.details.setObjectName(u"details")
-        sizePolicy.setHeightForWidth(self.details.sizePolicy().hasHeightForWidth())
-        self.details.setSizePolicy(sizePolicy)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.details.sizePolicy().hasHeightForWidth())
+        self.details.setSizePolicy(sizePolicy3)
+        self.details.setMaximumSize(QSize(16777215, 163))
         self.details.setFont(font2)
         self.gridLayout = QGridLayout(self.details)
         self.gridLayout.setSpacing(0)
@@ -192,9 +197,6 @@ class Ui_MainWindow(object):
         self.obj_layout.setContentsMargins(0, -1, -1, -1)
         self.obj_name = QLineEdit(self.details)
         self.obj_name.setObjectName(u"obj_name")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.obj_name.sizePolicy().hasHeightForWidth())
         self.obj_name.setSizePolicy(sizePolicy3)
         self.obj_name.setFont(font1)
@@ -212,18 +214,24 @@ class Ui_MainWindow(object):
 
         self.details_table = QTableView(self.details)
         self.details_table.setObjectName(u"details_table")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-        sizePolicy4.setHorizontalStretch(0)
-        sizePolicy4.setVerticalStretch(0)
-        sizePolicy4.setHeightForWidth(self.details_table.sizePolicy().hasHeightForWidth())
-        self.details_table.setSizePolicy(sizePolicy4)
+        sizePolicy1.setHeightForWidth(self.details_table.sizePolicy().hasHeightForWidth())
+        self.details_table.setSizePolicy(sizePolicy1)
         self.details_table.setFont(font1)
         self.details_table.horizontalHeader().setVisible(False)
 
         self.gridLayout.addWidget(self.details_table, 1, 0, 1, 1)
 
 
-        self.verticalLayout_2.addWidget(self.details)
+        self.gridLayout_4.addWidget(self.details, 1, 0, 1, 2)
+
+        self.skyplot = QWidget(self.obj)
+        self.skyplot.setObjectName(u"skyplot")
+        sizePolicy.setHeightForWidth(self.skyplot.sizePolicy().hasHeightForWidth())
+        self.skyplot.setSizePolicy(sizePolicy)
+        self.skyplot.setMinimumSize(QSize(298, 298))
+        self.skyplot.setMaximumSize(QSize(1400, 1400))
+
+        self.gridLayout_4.addWidget(self.skyplot, 2, 0, 1, 2)
 
 
         self.horizontalLayout.addWidget(self.obj)
@@ -231,7 +239,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 988, 20))
+        self.menubar.setGeometry(QRect(0, 0, 1107, 24))
         self.menuMenu = QMenu(self.menubar)
         self.menuMenu.setObjectName(u"menuMenu")
         MainWindow.setMenuBar(self.menubar)

@@ -14,8 +14,8 @@ authors:
 
 import sys
 import os
-from PySide6.QtWidgets import QApplication, QMainWindow, QInputDialog
-from widgets import qrow_widget, CurrentQueue, update_table, ObjectInfo, SkyView
+from PySide6.QtWidgets import QApplication, QMainWindow, QInputDialog, QMessageBox
+from widgets import qrow_widget, CurrentQueue, update_table, ObjectInfo, SkyView, SkyPlot
 from PySide6.QtCore import SIGNAL, Qt, QTimer
 from ui_qman_pyqt import Ui_MainWindow
 import pandas as pd
@@ -23,9 +23,30 @@ import numpy as np
 import json
 from datetime import datetime as dt
 import logging
+import fcntl
+import asyncio
+import time
+import threading
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s', filemode='w', filename='qman.log')
 # os.environ['QT_MAC_WANTS_LAYER'] = '1'    # to work on MacOS
+
+
+class SingleInstance:
+    def __init__(self, lockfile):
+        logging.debug(f"SingleInstance: {lockfile} creating")
+        self.lockfile = lockfile
+        self.fp = None
+
+    def is_running(self):
+        try:
+            self.fp = open(self.lockfile, 'w')
+            fcntl.lockf(self.fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            logging.debug(f"SingleInstance: {self.lockfile} not running")
+            return False                                    
+        except IOError:
+            logging.debug(f"SingleInstance: {self.lockfile} running")
+            return True
 
 class QmanMain(QMainWindow):
     def __init__(self, cargs):
@@ -35,6 +56,7 @@ class QmanMain(QMainWindow):
         self.ccdobs = cargs[1]
         self.qobjs = self.get_qlist()
         self.qrows = []
+        self.my_obj = None
         logging.info(f'QMAN started!')
         logging.info(f'CCDOBS file: {self.ccdobs}')
         # SkyView instance
@@ -77,8 +99,22 @@ class QmanMain(QMainWindow):
         self.timer.timeout.connect(self.json_dump)
         self.timer.start(1000) 
         
+        self.skyplot = SkyPlot(self.ui.skyplot, self.my_obj, self.ui)
+        self.skyplot.layout.setContentsMargins(0, 0, 0, 0)
+        self.skyplot.layout.setSpacing(0)
+        self.skyplot.layout.setAlignment(Qt.AlignCenter)
+
+        # self.monitor_thread = threading.Thread(target=self.monitor_qman)
+        # self.monitor_thread.daemon = True
+        # self.monitor_thread.start()
+
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Ready!')
         logging.info(f'Ready!')
+
+    # def monitor_qman(self):
+    #     while True:
+    #         self.json_dump()
+    #         time.sleep(0.2)
 
     def set_queue(self):
         self.qobjs = self.get_qlist()
@@ -95,20 +131,27 @@ class QmanMain(QMainWindow):
         rtcoor_path = '/dev/shm/rtcoor.data' if os.path.exists('/dev/shm') else 'rtcoor.data'
         try:
             with open(rtcoor_path, 'w') as f:
-                obj_alt, obj_az, obj_ha_sex, ra, dec_sex, found = self.my_obj.get_info()
-                json.dump({'ra': np.round(self.my_obj.ra, 5), 
-                        'dec': np.round(self.my_obj.dec, 5),
-                        'dec_sex': dec_sex.split()[0],
-                        'ha': np.round(self.my_obj.ha, 5),
-                        'ha_sex': obj_ha_sex,
-                        'alt': np.round(self.my_obj.alt, 1), 
-                        'az': np.round(self.my_obj.az, 1), 
-                        'objname': self.table_data['Object'].values[0]},
-                        f)
+                obj_alt, obj_az, obj_ha_sex, ra, dec_sex = self.my_obj.get_info()
+                try:
+                    json.dump({'ra': np.round(self.my_obj.ra, 5), 
+                            'dec': np.round(self.my_obj.dec, 5),
+                            'dec_sex': dec_sex.split()[0],
+                            'ha': np.round(self.my_obj.ha, 5),
+                            'ha_sex': obj_ha_sex,
+                            'alt': np.round(self.my_obj.alt, 1), 
+                            'az': np.round(self.my_obj.az, 1), 
+                            'objname': self.table_data['Object'].values[0]},
+                            f)
+                except TypeError as e:
+                    # logging.error(f'Error: {e}')
+                    json.dump({'-': '-', '-': '-', '-': '-', '-': '-', '-': '-', '-': '-', '-': '-'}, f)
+                    # self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Error: {e}')
             self.table_data['HA'] = f'{obj_ha_sex}'
             self.table_data['Alt'] = f'{obj_alt}'
+            self.skyplot.my_obj = self.my_obj
+            self.skyplot.replot()
         except Exception as e:
-            logging.error(f'Error: {e}')
+            logging.error(f'func: json_dump() Error: {e}')
             self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Error: {e}')
         return self
     
@@ -233,12 +276,14 @@ class QmanMain(QMainWindow):
         data = {'Object': [objname], 'RA': [''], 'DEC': [''], 'HA': [''], 'Alt': [''], 'Queue time': [str(qtime)]}
         self.table_data = pd.DataFrame.from_dict(data)
         # Get object data from astropy
-        self.my_obj = ObjectInfo(objname, self.objpos)
-        obj_alt, obj_az, obj_ha, ra, dec, found = self.my_obj.get_info()
-        self.table_data['RA'] = f'{ra} (J2000)' if found else f'{ra} (J2000)*'
-        self.table_data['DEC'] = f'{dec} (J2000)' if found else f'{dec} (J2000)*'
+        self.my_obj = ObjectInfo(objname=objname, objpos=self.objpos)
+        self.my_obj.check_objpos() # check if object is in objpos.dat
+        obj_alt, obj_az, obj_ha, ra, dec = self.my_obj.get_info()
+        self.table_data['RA'] = f'{ra} (J2000)' if self.my_obj.found else f'{ra} (J2000)*'
+        self.table_data['DEC'] = f'{dec} (J2000)' if self.my_obj.found else f'{dec} (J2000)*'
         self.table_data['HA'] = f'{obj_ha}'
         self.table_data['Alt'] = f'{obj_alt}'
+        self.skyview.create_aladin_view(self.my_obj.c.ra.deg, self.my_obj.c.dec.deg)
         # if objname != '0_CURRENT_QUEUE' and objname not in self.objpos['Object'].values:
         # elif objname != '0_CURRENT_QUEUE':
         return self
@@ -251,6 +296,36 @@ class QmanMain(QMainWindow):
         for obj in sorted(filtered, key=str.lower):
             self.ui.qobjs.addItem(obj)
 
+    # def resizeFunction(self):
+    #     width = self.ui.skyplot.width()
+    #     height = self.ui.skyplot.height()
+    #     square = min(width, height)
+    #     self.skyplot.figure.set_size_inches(square, square)
+    
+    # def resizeEvent(self, event):
+    #     # Override the resizeEvent to call resizeFunction whenever window is resized
+    #     self.resizeFunction()
+
+    #     # Optionally, call the base class method to ensure default behavior
+    #     super(QmanMain, self).resizeEvent(event)
+
+    def main(self):
+        lockfile = "/tmp/qman.lock"
+        logging.info("Starting QMAN...")
+        single_instance_checker = SingleInstance(lockfile)
+
+        if single_instance_checker.is_running():
+            logging.info("Another instance is already running, exiting...")
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Warning)
+            msg_box.setText("Another instance is already running.")
+            msg_box.setWindowTitle("SmartPlugController: INFO")
+            msg_box.exec()
+            sys.exit(0)
+
+        window = QmanMain(sys.argv)
+        window.show()
+        sys.exit(app.exec())
 
 
 if __name__ == "__main__":
@@ -261,6 +336,4 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         app = QApplication(sys.argv)
-        window = QmanMain(sys.argv)
-        window.show()
-        sys.exit(app.exec())
+        QmanMain(sys.argv).main()
