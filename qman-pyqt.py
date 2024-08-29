@@ -10,6 +10,11 @@ Every change in ui file must be converted to Python file with command:
 authors: 
     K. Kotysz:      k.kotysz(at)gmail.com
     P. Mikolajczyk: przeminio(at)gmail.com
+
+    To Add:
+    - Finder chart from Astroplan (+ button to switch between Aladin and Astroplan)
+    - Resizeable SkyPlot (adjustable to window size) and centralize it
+    - Threading for json_dump() function (and maybe others)
 """
 
 import sys

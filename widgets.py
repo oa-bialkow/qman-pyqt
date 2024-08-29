@@ -39,7 +39,7 @@ config = configparser.ConfigParser()
 config.read('observatory.ini')
 chosen_obs = 'BIALKOW'
 if chosen_obs not in config.sections():
-    chosen_obs = 'OBSERVATORY'
+    chosen_obs = 'DEFAULT'
 
 
 
@@ -149,7 +149,7 @@ class ObjectInfo:
         self.objpos = self.objpos
         self.myobs.lon = config.getfloat(chosen_obs, 'longitude')
         self.myobs.lat = config.getfloat(chosen_obs, 'latitude')
-        self.myobs.elevation = config.getfloat('OBSERVATORY', 'elevation')
+        self.myobs.elevation = config.getfloat(chosen_obs, 'elevation')
         self.myobs.date = str(Time(dt.utcnow(), scale='ut1', location=(self.myobs.lon * u.deg, self.myobs.lat * u.deg)))  # Time in UT
 
     def check_objpos(self):
