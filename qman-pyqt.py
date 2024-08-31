@@ -12,14 +12,14 @@ authors:
     P. Mikolajczyk: przeminio(at)gmail.com
 
     To Add:
-    - Finder chart from Astroplan (+ button to switch between Aladin and Astroplan)
+    - Findeinder chart from Astroplan (+ button to switch between Aladin and Astroplan)
     - Resizeable SkyPlot (adjustable to window size) and centralize it
     - Threading for json_dump() function (and maybe others)
 """
 
 import sys
 import os
-from PySide6.QtWidgets import QApplication, QMainWindow, QInputDialog, QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QInputDialog, QMessageBox, QVBoxLayout
 from widgets import qrow_widget, CurrentQueue, update_table, ObjectInfo, SkyView, SkyPlot
 from PySide6.QtCore import SIGNAL, Qt, QTimer
 from ui_qman_pyqt import Ui_MainWindow
@@ -33,7 +33,7 @@ import asyncio
 import time
 import threading
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s', filemode='w', filename='qman.log')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s', filemode='w', filename='qman.log')
 # os.environ['QT_MAC_WANTS_LAYER'] = '1'    # to work on MacOS
 
 
@@ -58,17 +58,20 @@ class QmanMain(QMainWindow):
         super(QmanMain, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.ccdobs = cargs[1]
+        self.ccdobs = cargs[2]
         self.qobjs = self.get_qlist()
         self.qrows = []
         self.my_obj = None
+        self.debug = False if '-d' not in cargs else True
+        if self.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
         logging.info(f'QMAN started!')
         logging.info(f'CCDOBS file: {self.ccdobs}')
         # SkyView instance
         self.skyview = SkyView(self.ui)
 
         # Read objpos.dat file
-        self.objpos = pd.read_csv(cargs[2], sep='\s+', header=None,
+        self.objpos = pd.read_csv(cargs[3], sep='\s+', header=None,
                                   names=['Object', 'RAd', 'RAm', 'RAs', 
                                          'DECd', 'DECm', 'DECs', 'Epoch', 
                                          'Pier side', 'Guiding star', 'Guider position'],
@@ -105,9 +108,12 @@ class QmanMain(QMainWindow):
         self.timer.start(1000) 
         
         self.skyplot = SkyPlot(self.ui.skyplot, self.my_obj, self.ui)
-        self.skyplot.layout.setContentsMargins(0, 0, 0, 0)
-        self.skyplot.layout.setSpacing(0)
-        self.skyplot.layout.setAlignment(Qt.AlignCenter)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.setAlignment(Qt.AlignCenter)  # Center alignment for layout
+        layout.addWidget(self.skyplot.canvas)
+        self.ui.skyplot.setLayout(layout)
 
         # self.monitor_thread = threading.Thread(target=self.monitor_qman)
         # self.monitor_thread.daemon = True
@@ -281,9 +287,10 @@ class QmanMain(QMainWindow):
         data = {'Object': [objname], 'RA': [''], 'DEC': [''], 'HA': [''], 'Alt': [''], 'Queue time': [str(qtime)]}
         self.table_data = pd.DataFrame.from_dict(data)
         # Get object data from astropy
-        self.my_obj = ObjectInfo(objname=objname, objpos=self.objpos)
+        self.my_obj = ObjectInfo(objname=objname, objpos=self.objpos, debug=self.debug)
         self.my_obj.check_objpos() # check if object is in objpos.dat
         obj_alt, obj_az, obj_ha, ra, dec = self.my_obj.get_info()
+        self.ui.obj_name.setText(self.my_obj.normed_objname)
         self.table_data['RA'] = f'{ra} (J2000)' if self.my_obj.found else f'{ra} (J2000)*'
         self.table_data['DEC'] = f'{dec} (J2000)' if self.my_obj.found else f'{dec} (J2000)*'
         self.table_data['HA'] = f'{obj_ha}'

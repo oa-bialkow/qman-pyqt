@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1107</width>
-    <height>862</height>
+    <width>1166</width>
+    <height>813</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+   <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="font">
    <font>
-    <family>Noto Mono</family>
+    <family>Roboto Flex</family>
    </font>
   </property>
   <property name="windowTitle">
@@ -62,7 +62,8 @@
        <widget class="QLineEdit" name="qobjs_filter">
         <property name="font">
          <font>
-          <family>Noto Mono</family>
+          <family>Roboto Flex</family>
+          <pointsize>14</pointsize>
          </font>
         </property>
         <property name="inputMask">
@@ -86,8 +87,8 @@
         </property>
         <property name="font">
          <font>
-          <family>Noto Mono</family>
-          <pointsize>11</pointsize>
+          <family>Roboto Flex</family>
+          <pointsize>14</pointsize>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -106,7 +107,7 @@
       </property>
       <property name="font">
        <font>
-        <family>Noto Mono</family>
+        <family>Roboto Flex</family>
         <italic>false</italic>
         <bold>false</bold>
        </font>
@@ -137,10 +138,10 @@
          </property>
          <property name="font">
           <font>
-           <family>Noto Mono</family>
-           <pointsize>11</pointsize>
+           <family>Roboto Flex</family>
+           <pointsize>14</pointsize>
            <italic>false</italic>
-           <bold>false</bold>
+           <bold>true</bold>
           </font>
          </property>
          <property name="horizontalScrollBarPolicy">
@@ -160,8 +161,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>367</width>
-            <height>733</height>
+            <width>386</width>
+            <height>680</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -211,8 +212,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Noto Mono</family>
-           <pointsize>11</pointsize>
+           <family>Roboto Flex</family>
+           <pointsize>13</pointsize>
            <italic>false</italic>
            <bold>false</bold>
           </font>
@@ -232,8 +233,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Noto Mono</family>
-           <pointsize>30</pointsize>
+           <family>Roboto Flex</family>
+           <pointsize>34</pointsize>
            <italic>false</italic>
            <bold>false</bold>
           </font>
@@ -256,7 +257,7 @@
       </property>
       <property name="font">
        <font>
-        <family>Noto Mono</family>
+        <family>Roboto Flex</family>
         <italic>false</italic>
         <bold>false</bold>
        </font>
@@ -285,9 +286,15 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="baseSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="font">
           <font>
-           <family>Noto Mono</family>
+           <family>Roboto Flex</family>
            <pointsize>11</pointsize>
            <italic>false</italic>
            <bold>false</bold>
@@ -309,8 +316,22 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <item row="0" column="0">
+          <item row="0" column="0" colspan="2">
            <widget class="QWebEngineView" name="aladin_view">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Roboto Flex</family>
+              <pointsize>11</pointsize>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
             <property name="url">
              <url>
               <string>about:blank</string>
@@ -318,101 +339,57 @@
             </property>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QWidget" name="details" native="true">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>163</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Noto Mono</family>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <item row="0" column="0">
-           <layout class="QHBoxLayout" name="obj_layout">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLineEdit" name="obj_name">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="font">
-               <font>
-                <family>Noto Mono</family>
-                <pointsize>11</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="resolve">
-              <property name="font">
-               <font>
-                <family>Noto Mono</family>
-                <pointsize>11</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Resolve</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="1" column="0">
-           <widget class="QTableView" name="details_table">
+          <item row="1" column="1">
+           <widget class="QPushButton" name="resolve">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>39</height>
+             </size>
+            </property>
             <property name="font">
              <font>
-              <family>Noto Mono</family>
-              <pointsize>11</pointsize>
+              <family>Roboto Flex</family>
+              <pointsize>12</pointsize>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Resolve</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QTableView" name="details_table">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>180</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Roboto Flex</family>
+              <pointsize>14</pointsize>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -420,6 +397,36 @@
             <attribute name="horizontalHeaderVisible">
              <bool>false</bool>
             </attribute>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLineEdit" name="obj_name">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Roboto Flex</family>
+              <pointsize>14</pointsize>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
            </widget>
           </item>
          </layout>
@@ -435,15 +442,23 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>298</width>
-           <height>298</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>1400</width>
-           <height>1400</height>
+           <width>16777215</width>
+           <height>300</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Roboto Flex</family>
+           <pointsize>14</pointsize>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
          </property>
         </widget>
        </item>
@@ -457,7 +472,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1107</width>
+     <width>1166</width>
      <height>24</height>
     </rect>
    </property>

@@ -33,7 +33,8 @@ def normalize_objname(name):
     opt1 = name.replace(' ', '').split('_')[0].split('-')[0].split('(')[0].split('[')[0].split(',')[0].split('=')[0].lower()
     opt2 = name.replace('_', '').split('_')[0].split('-')[0].split('(')[0].split('[')[0].split(',')[0].split('=')[0].lower()
     opt3 = name.rsplit('_', 1)[0].replace('_', '').split('-')[0].split('(')[0].split('[')[0].split(',')[0].split('=')[0].lower()
-    return set((opt1, opt2, opt3, name))
+    opt4 = name.split()[0].replace('_', '')[0].lower()
+    return set((opt1, opt2, opt3, opt4, name))
 
 config = configparser.ConfigParser()
 config.read('observatory.ini')
@@ -64,11 +65,6 @@ class SkyPlot(QWidget):
         self.location = EarthLocation.from_geodetic(lon=self.my_obj.myobs.lon, lat=self.my_obj.myobs.lat, height=self.my_obj.myobs.elevation)
         self.observer = Observer(location=self.location, name="Observatory", timezone="UTC")
 
-        # Create a vertical box layout and add the canvas to it
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.canvas)
-        self.setLayout(self.layout)
-        
         # Example plot
         self.plot()
 
@@ -138,6 +134,8 @@ class SkyPlot(QWidget):
 class ObjectInfo:
     objname: str
     objpos: any
+    debug: bool = False
+    normed_objname: str = None
     myobs: any = ephem.Observer()
     ra: any = None
     dec: any = None
@@ -156,11 +154,25 @@ class ObjectInfo:
         norm_obj_name = normalize_objname(self.objname)
         norm_objpos = self.objpos['Object'].apply(normalize_objname).values
         flattened_list = [item for sublist in norm_objpos for item in sublist]
-        if any(obj in flattened_list for obj in norm_obj_name) and self.objname != '0_CURRENT_QUEUE':
-            mask = [obj in flattened_list for obj in norm_obj_name]
+        logging.debug(f'Normalized object names: {norm_obj_name}')
+        mask = []
+        for obj in norm_obj_name:
+            if len(obj) > 1:
+                mask.append(obj in flattened_list)
+            else:
+                mask.append(False)
+        if any(obj in flattened_list for obj in norm_obj_name) and self.objname != '0_CURRENT_QUEUE' and mask.count(True) > 0:
+            # mask = [obj in flattened_list for obj in norm_obj_name if len(obj) > 1]
+            logging.debug(f'Mask: {mask}')
             if mask.count(True) > 1:
-                len_mask = [len(obj) for obj in norm_obj_name]
-                mask = [mask[i] and len_mask[i] == max(len_mask) for i in range(len(mask))]
+                len_mask = np.array([len(obj) for obj in norm_obj_name])
+                logging.debug(f'Length mask: {len_mask}')
+                for i in range(len(mask)):
+                    if mask[i] and len_mask[i] > 1:
+                        mask[i] = mask[i] and len_mask[i] == max(len_mask[mask])
+                    else:
+                        mask[i] = False
+                        
             matched_name = np.array(list(norm_obj_name))[mask][0]
             matching_row_index = self.objpos.index[self.objpos['Object'].apply(normalize_objname).apply(lambda x: matched_name in x)].tolist()
             obj = self.objpos.iloc[matching_row_index]
@@ -169,6 +181,7 @@ class ObjectInfo:
             self.c = SkyCoord(ra=ra.split()[0], dec=dec.split()[0], frame='icrs', unit=(u.hourangle, u.deg))
             self.found = True
             self.resolved = False
+            self.normed_objname = obj['Object'].values[0]
             logging.info(f'{self.objname} found in objpos.dat!')
         else:
             self.found = False
@@ -183,32 +196,6 @@ class ObjectInfo:
                 logging.info(f'{self.objname} not found!')
 
     def get_info(self):
-        # norm_obj_name = normalize_objname(self.objname) # Normalize the object name (tuple with two options)
-        # print(norm_obj_name)
-        # norm_objpos = self.objpos['Object'].apply(normalize_objname).values # Normalize the object names in objpos.dat (list of tuples)
-        # flattened_list = [item for sublist in norm_objpos for item in sublist] # Flatten the list of tuples
-        # if any(obj in flattened_list for obj in norm_obj_name) and self.objname != '0_CURRENT_QUEUE': # Check if any of the normalized object names is in the list of normalized object names
-        #     mask = [obj in flattened_list for obj in norm_obj_name] # Create a mask to find the matching object name
-        #     print(np.array(norm_obj_name))
-        #     print(mask)
-        #     lp = 0
-        #     for i, obj in enumerate(norm_obj_name):
-        #         ln = len(obj)
-        #         if ln > lp:
-        #             lp = ln
-        #             maskk = [False]*len(norm_obj_name)
-        #             maskk[i] = True
-        #     print(mask)
-        #     matched_name = np.array(norm_obj_name)[mask][0] # Extract the matched object name
-        #     matching_row_index = self.objpos.index[self.objpos['Object'].apply(normalize_objname).apply(lambda x: matched_name in x)].tolist() # Find the row index where the tuple contains the desired string
-        #     print(matching_row_index, obj)
-        #     obj = self.objpos.iloc[matching_row_index] # Extract the matching row
-        #     ra = f"{int(obj['RAd'].values[0]):2d}:{int(obj['RAm'].values[0]):02d}:{int(obj['RAs'].values[0]):02d} (J{obj['Epoch'].values[0]})"
-        #     dec = f"{obj['DECd'].values[0].zfill(2)}:{int(obj['DECm'].values[0]):02d}:{int(obj['DECs'].values[0]):02d} (J{obj['Epoch'].values[0]})"
-        #     self.c = SkyCoord(ra=ra.split()[0], dec=dec.split()[0], frame='icrs', unit=(u.hourangle, u.deg))
-        #     found = True
-        #     # print(self.objname, obj)
-        #     logging.info(f'{self.objname} found in objpos.dat!')
         if not self.resolved and not self.found:
             return ('--', '--', '--', '--', '--')
 
@@ -240,7 +227,6 @@ def update_table(func):
         obj = func(*args, **kwargs)
         obj.ui.details_table.setModel(TableModel(obj.table_data))
         obj.ui.details_table.resizeColumnsToContents()
-        obj.ui.details_table.resizeRowsToContents()
         header = obj.ui.details_table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
         # obj.skyview.create_aladin_view(obj.my_obj.c.ra.deg, obj.my_obj.c.dec.deg)
