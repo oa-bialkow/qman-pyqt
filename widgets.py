@@ -33,7 +33,7 @@ def normalize_objname(name):
     opt1 = name.replace(' ', '').split('_')[0].split('-')[0].split('(')[0].split('[')[0].split(',')[0].split('=')[0].lower()
     opt2 = name.replace('_', '').split('_')[0].split('-')[0].split('(')[0].split('[')[0].split(',')[0].split('=')[0].lower()
     opt3 = name.rsplit('_', 1)[0].replace('_', '').split('-')[0].split('(')[0].split('[')[0].split(',')[0].split('=')[0].lower()
-    return (opt1, opt2, opt3)
+    return set((opt1, opt2, opt3, name))
 
 config = configparser.ConfigParser()
 config.read('observatory.ini')
@@ -156,11 +156,12 @@ class ObjectInfo:
         norm_obj_name = normalize_objname(self.objname)
         norm_objpos = self.objpos['Object'].apply(normalize_objname).values
         flattened_list = [item for sublist in norm_objpos for item in sublist]
-        # print(norm_obj_name)
         if any(obj in flattened_list for obj in norm_obj_name) and self.objname != '0_CURRENT_QUEUE':
             mask = [obj in flattened_list for obj in norm_obj_name]
-            # print(mask)
-            matched_name = np.array(norm_obj_name)[mask][0]
+            if mask.count(True) > 1:
+                len_mask = [len(obj) for obj in norm_obj_name]
+                mask = [mask[i] and len_mask[i] == max(len_mask) for i in range(len(mask))]
+            matched_name = np.array(list(norm_obj_name))[mask][0]
             matching_row_index = self.objpos.index[self.objpos['Object'].apply(normalize_objname).apply(lambda x: matched_name in x)].tolist()
             obj = self.objpos.iloc[matching_row_index]
             ra = f"{int(obj['RAd'].values[0]):2d}:{int(obj['RAm'].values[0]):02d}:{int(obj['RAs'].values[0]):02d} (J{obj['Epoch'].values[0]})"

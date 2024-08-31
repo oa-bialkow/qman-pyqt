@@ -33,7 +33,7 @@ import asyncio
 import time
 import threading
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s', filemode='w', filename='qman.log')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s', filemode='w', filename='qman.log')
 # os.environ['QT_MAC_WANTS_LAYER'] = '1'    # to work on MacOS
 
 
