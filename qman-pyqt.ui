@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1166</width>
-    <height>813</height>
+    <height>950</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -31,10 +31,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <property name="spacing">
-     <number>0</number>
-    </property>
+   <layout class="QGridLayout" name="gridLayout_3">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -47,207 +44,10 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <item>
-     <layout class="QVBoxLayout" name="qlist">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="leftMargin">
-       <number>2</number>
-      </property>
-      <property name="topMargin">
-       <number>2</number>
-      </property>
-      <item>
-       <widget class="QLineEdit" name="qobjs_filter">
-        <property name="font">
-         <font>
-          <family>Roboto Flex</family>
-          <pointsize>14</pointsize>
-         </font>
-        </property>
-        <property name="inputMask">
-         <string/>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="placeholderText">
-         <string>Search...</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QListWidget" name="qobjs">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Roboto Flex</family>
-          <pointsize>14</pointsize>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <widget class="QWidget" name="qview" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <family>Roboto Flex</family>
-        <italic>false</italic>
-        <bold>false</bold>
-       </font>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QScrollArea" name="qscroll2">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Roboto Flex</family>
-           <pointsize>14</pointsize>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAsNeeded</enum>
-         </property>
-         <property name="sizeAdjustPolicy">
-          <enum>QAbstractScrollArea::AdjustToContents</enum>
-         </property>
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignHCenter|Qt::AlignTop</set>
-         </property>
-         <widget class="QWidget" name="queue">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>386</width>
-            <height>680</height>
-           </rect>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Monaco</family>
-            <pointsize>11</pointsize>
-            <italic>false</italic>
-            <bold>false</bold>
-           </font>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="sizeConstraint">
-            <enum>QLayout::SetFixedSize</enum>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="add_row">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <family>Roboto Flex</family>
-           <pointsize>13</pointsize>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>ADD ROW</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="setq">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <family>Roboto Flex</family>
-           <pointsize>34</pointsize>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>SET QUEUE</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <item row="0" column="2">
      <widget class="QWidget" name="obj" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
@@ -316,29 +116,6 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <item row="0" column="0" colspan="2">
-           <widget class="QWebEngineView" name="aladin_view">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <family>Roboto Flex</family>
-              <pointsize>11</pointsize>
-              <italic>false</italic>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="url">
-             <url>
-              <string>about:blank</string>
-             </url>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <widget class="QPushButton" name="resolve">
             <property name="sizePolicy">
@@ -363,6 +140,36 @@
             </property>
             <property name="text">
              <string>Resolve</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLineEdit" name="obj_name">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Roboto Flex</family>
+              <pointsize>14</pointsize>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
             </property>
            </widget>
           </item>
@@ -399,34 +206,88 @@
             </attribute>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLineEdit" name="obj_name">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+          <item row="0" column="0" colspan="2">
+           <widget class="QTabWidget" name="tabWidget">
+            <property name="currentIndex">
+             <number>1</number>
             </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>Roboto Flex</family>
-              <pointsize>14</pointsize>
-              <italic>false</italic>
-              <bold>false</bold>
-             </font>
-            </property>
+            <widget class="QWidget" name="tab_aladin">
+             <attribute name="title">
+              <string>Aladin</string>
+             </attribute>
+             <layout class="QGridLayout" name="aladin_layout">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QWebEngineView" name="aladin_view">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Roboto Flex</family>
+                  <pointsize>11</pointsize>
+                  <italic>false</italic>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="url">
+                 <url>
+                  <string>about:blank</string>
+                 </url>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tab_fchart">
+             <attribute name="title">
+              <string>Finder chart</string>
+             </attribute>
+             <layout class="QGridLayout" name="fchart_layout">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QWidget" name="fchart" native="true">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </widget>
           </item>
          </layout>
@@ -459,6 +320,206 @@
            <italic>false</italic>
            <bold>false</bold>
           </font>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="qlist">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="qobjs_filter">
+        <property name="font">
+         <font>
+          <family>Roboto Flex</family>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="inputMask">
+         <string/>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>Search...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="qobjs">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Roboto Flex</family>
+          <pointsize>14</pointsize>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="1">
+     <widget class="QWidget" name="qview" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <family>Roboto Flex</family>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QScrollArea" name="qscroll2">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Roboto Flex</family>
+           <pointsize>14</pointsize>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignHCenter|Qt::AlignTop</set>
+         </property>
+         <widget class="QWidget" name="queue">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>386</width>
+            <height>817</height>
+           </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Roboto Mono Medium for Powerline</family>
+            <pointsize>12</pointsize>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="sizeConstraint">
+            <enum>QLayout::SetFixedSize</enum>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="add_row">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Roboto Flex</family>
+           <pointsize>13</pointsize>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>ADD ROW</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="setq">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Roboto Flex</family>
+           <pointsize>34</pointsize>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>SET QUEUE</string>
          </property>
         </widget>
        </item>

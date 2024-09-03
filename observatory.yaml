@@ -1,8 +1,0 @@
-# This file contains the configuration for the observatory.
-Observatory:
-    Name: "OAB"
-    Description: "Obserwatorium Astronomiczne w Białkowie"
-    Timezone: "UTC"
-    Latitude: 51.476111
-    Longitude: 16.656667
-    Elevation: 130.0

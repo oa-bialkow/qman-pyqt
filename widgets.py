@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QDoubleSpinBox, QComboBox, QSpinBox, QHBoxLayout, QWidget, QPushButton, QHeaderView, QSizePolicy, QWidget, QVBoxLayout, QSizePolicy
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QRunnable, Slot, QThreadPool
 from PySide6 import QtCore, QtGui
 from dataclasses import dataclass
 import logging
@@ -12,13 +12,13 @@ import configparser
 import ephem
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz, get_body, solar_system_ephemeris
 from astropy import units as u
-from astropy.coordinates import name_resolve
+from astropy.coordinates import name_resolve, Angle
 from astropy.time import Time
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backend_bases import MouseButton
-from astroplan.plots import plot_sky
+from astroplan.plots import plot_sky, plot_finder_image
 from astroplan import FixedTarget, Observer
 from baladin import Aladin
 
@@ -58,8 +58,7 @@ class SkyPlot(QWidget):
         self.temp_obj = (0, -90)
         self.canvas = FigureCanvas(self.figure)
         cid = self.canvas.mpl_connect('button_press_event', self.on_click)
-        # self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.canvas.updateGeometry()
+
         self.my_obj = my_obj
         self.ui = ui
         self.location = EarthLocation.from_geodetic(lon=self.my_obj.myobs.lon, lat=self.my_obj.myobs.lat, height=self.my_obj.myobs.elevation)
@@ -95,8 +94,6 @@ class SkyPlot(QWidget):
 
         if self.my_obj.ra is not None:
             current_object = SkyCoord(ra=self.my_obj.ra*u.deg, dec=self.my_obj.dec*u.deg)
-            current_object_altaz = current_object.transform_to(AltAz(obstime=time, location=self.location))
-            # print(f'Alt: {current_object_altaz.alt.deg} Az: {current_object_altaz.az.deg}')
             obj = FixedTarget(coord=current_object, name="OBJ")
             plot_sky(obj, self.observer, time, ax=self.ax, style_kwargs=obj_style)
 
@@ -117,7 +114,6 @@ class SkyPlot(QWidget):
         self.ax.clear()
         self.plot()
 
-
     def on_click(self, event):
         if event.button is MouseButton.LEFT:
             if event.inaxes == self.ax:
@@ -129,6 +125,57 @@ class SkyPlot(QWidget):
                 self.temp_obj = (event.xdata, event.ydata)
                 self.ui.statusbar.showMessage(f'Selected point: Az: {theta_:.2f}° Alt: {r_click:.2f}°')
                 self.replot()
+
+class FinderChart(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.figure = Figure(figsize=(3.5, 3.5))
+        self.canvas = FigureCanvas(self.figure)
+        self.ax = self.figure.add_subplot(111)
+        self.figure.tight_layout()
+
+    def get_limits(self, hdu):
+        self.hfov = 20 / 2. / 60. # half of the full field of view in degrees
+        limit = lambda scale: self.hfov/scale # arcmin to pixels
+        x_px, y_px = hdu.shape
+        x_px_scale = np.abs(hdu.header['CDELT1']) # in arcmin
+        y_px_scale = np.abs(hdu.header['CDELT2']) # in arcmin
+        return limit(x_px_scale), limit(y_px_scale)
+
+    def plot(self, ra, dec, name):
+        self.ax.clear()
+        if ra is not None:
+            current_object = SkyCoord(ra=ra*u.deg, dec=dec*u.deg)
+            obj = FixedTarget(coord=current_object, name=name)
+            ax, hdu = plot_finder_image(obj, ax=self.ax)
+            limit_x, limit_y = self.get_limits(hdu)
+            self.ax.set_xlim(hdu.shape[1]/2 - limit_x, hdu.shape[1]/2 + limit_x) # center the image in x (pixels)
+            self.ax.set_ylim(hdu.shape[0]/2 - limit_y, hdu.shape[0]/2 + limit_y) # center the image in y (pixels)
+            self.ax.tick_params(axis='x', which='both', direction='in', labelsize=8, pad=0)
+            self.ax.tick_params(axis='y', which='both', direction='in', labelsize=8, pad=20)
+            self.ax.tick_params(axis='both', which='major', length=7)  # Major ticks longer
+            self.ax.tick_params(axis='both', which='minor', length=4)  # Minor ticks shorter
+            n_ticks = 5
+            xtl = Angle(np.linspace((ra/360*24 - self.hfov)*u.hourangle, (ra/360*24 + self.hfov)*u.hourangle, n_ticks), unit=u.hourangle)
+            ytl = Angle(np.linspace((dec - self.hfov)*u.deg, (dec + self.hfov)*u.deg, n_ticks), unit=u.deg)
+            # xtl = [f"{x.to(u.hourangle):latex}" for x in xtl]
+            xtl = [f"${{{int(x.hms.h)}}}^\mathrm{{{'h'}}}{{{int(x.hms.m)}}}^\mathrm{{{'m'}}}$" for x in xtl]
+            ytl = [f"${{{int(y.dms.d)}}}^\circ{{{int(np.abs(y.dms.m))}}}'$" for y in ytl]
+            # ytl = [f"{y.to(u.deg):latex}" for y in ytl]
+            self.ax.set_xticks(np.linspace(0, hdu.shape[1], n_ticks))
+            self.ax.set_yticks(np.linspace(0, hdu.shape[0], n_ticks))
+            self.ax.set_xticklabels(xtl, rotation=0, ha='center')
+            self.ax.set_yticklabels(ytl, rotation=0, ha='center', va='bottom')
+            self.ax.title.set_visible(False)
+            self.ax.xaxis.label.set_visible(False)
+            self.ax.yaxis.label.set_visible(False)
+            self.ax.spines['top'].set_visible(False)
+            self.ax.spines['right'].set_visible(False)
+            self.ax.spines['bottom'].set_visible(False)
+            self.ax.spines['left'].set_visible(False)
+
+            self.canvas.draw() 
+
 
 @dataclass
 class ObjectInfo:

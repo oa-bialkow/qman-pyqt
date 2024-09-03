@@ -12,16 +12,21 @@ authors:
     P. Mikolajczyk: przeminio(at)gmail.com
 
     To Add:
-    - Findeinder chart from Astroplan (+ button to switch between Aladin and Astroplan)
-    - Resizeable SkyPlot (adjustable to window size) and centralize it
-    - Threading for json_dump() function (and maybe others)
+    - Information about download status of Finder Chart
+    - Functionality: change readout mode in all rows
+    - Functionality: move row up/down (grab and drag??)
+    - Functionality: 0_CURRENT_QUEUE should resolve object and show it in SkyPlot/FinderChart/SkyView
+    - Styling: change color of rows with different image types
+    - Styling: change color of cells with different filters
+
+
 """
 
 import sys
 import os
 from PySide6.QtWidgets import QApplication, QMainWindow, QInputDialog, QMessageBox, QVBoxLayout
-from widgets import qrow_widget, CurrentQueue, update_table, ObjectInfo, SkyView, SkyPlot
-from PySide6.QtCore import SIGNAL, Qt, QTimer
+from widgets import qrow_widget, CurrentQueue, update_table, ObjectInfo, SkyView, SkyPlot, FinderChart
+from PySide6.QtCore import SIGNAL, Qt, QTimer, QRunnable, Slot, QThreadPool
 from ui_qman_pyqt import Ui_MainWindow
 import pandas as pd
 import numpy as np
@@ -29,13 +34,42 @@ import json
 from datetime import datetime as dt
 import logging
 import fcntl
-import asyncio
-import time
-import threading
+import argparse
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+import matplotlib.pyplot as plt
+
+# import asyncio
+# import time
+# import threading
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s', filemode='w', filename='qman.log')
 # os.environ['QT_MAC_WANTS_LAYER'] = '1'    # to work on MacOS
 
+class Worker(QRunnable):
+    '''
+    Worker thread
+
+    Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
+
+    :param callback: The function callback to run on this worker thread. Supplied args and
+                     kwargs will be passed through to the runner.
+    :type callback: function
+    :param args: Arguments to pass to the callback function
+    :param kwargs: Keywords to pass to the callback function
+
+    '''
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+
+    @Slot()
+    def run(self):
+        '''
+        Initialise the runner function with passed args, kwargs.
+        '''
+        self.fn(*self.args, **self.kwargs)
 
 class SingleInstance:
     def __init__(self, lockfile):
@@ -58,24 +92,51 @@ class QmanMain(QMainWindow):
         super(QmanMain, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.ccdobs = cargs[2]
+        self.thread_pool = QThreadPool()  # Initialize QThreadPool
+        logging.info(f'QThreadPool maxThreadCount: {self.thread_pool.maxThreadCount()}')
+        self.ccdobs = cargs.ccdobs
         self.qobjs = self.get_qlist()
         self.qrows = []
-        self.my_obj = None
-        self.debug = False if '-d' not in cargs else True
+        self.my_obj = ObjectInfo(objname='dummy', objpos=pd.DataFrame(), debug=cargs.debug)
+        self.debug = cargs.debug
         if self.debug:
             logging.getLogger().setLevel(logging.DEBUG)
         logging.info(f'QMAN started!')
         logging.info(f'CCDOBS file: {self.ccdobs}')
-        # SkyView instance
+
+
+        # SkyView, SkyPlot, FinderChart instances
         self.skyview = SkyView(self.ui)
+        self.skyplot = SkyPlot(self.ui.skyplot, self.my_obj, self.ui)
+        self.fchart = FinderChart(self.ui.fchart)
+        
+        for widget, ui in [(self.skyplot, self.ui.skyplot), (self.fchart, self.ui.fchart)]:
+            layout = ui.layout()
+            if layout is None:
+                layout = QVBoxLayout(ui)
+                layout.setContentsMargins(0, 0, 0, 0)
+                layout.setSpacing(0)
+                layout.setAlignment(Qt.AlignCenter)  # Center alignment for layout
+                ui.setLayout(layout)
+            layout.addWidget(widget.canvas)
+        # Add Matplotlib navigation toolbar for zooming and panning
+        self.toolbar = NavigationToolbar(widget.canvas, self, coordinates=False)
+        layout.addWidget(self.toolbar)
 
         # Read objpos.dat file
-        self.objpos = pd.read_csv(cargs[3], sep='\s+', header=None,
-                                  names=['Object', 'RAd', 'RAm', 'RAs', 
-                                         'DECd', 'DECm', 'DECs', 'Epoch', 
-                                         'Pier side', 'Guiding star', 'Guider position'],
-                                  comment='#', skipinitialspace=True)
+        self.objpos = pd.DataFrame(columns=['Object', 'RAd', 'RAm', 'RAs', 
+                                    'DECd', 'DECm', 'DECs', 'Epoch', 
+                                    'Pier side', 'Guiding star', 'Guider position'])
+        try:
+            self.objpos = pd.read_csv(cargs.objpos, sep='\s+', header=None,
+                                    names=['Object', 'RAd', 'RAm', 'RAs', 
+                                            'DECd', 'DECm', 'DECs', 'Epoch', 
+                                            'Pier side', 'Guiding star', 'Guider position'],
+                                    comment='#', skipinitialspace=True)
+        except (FileNotFoundError, ValueError) as e:
+            logging.warning(f'Warning: No objpos file found!')
+            self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Warning: No objpos file found!')
+
         # Fill QListWidget with objects
         for obj in sorted(self.qobjs['Object'].unique(), key=str.lower):
             self.ui.qobjs.addItem(obj)
@@ -106,26 +167,35 @@ class QmanMain(QMainWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.json_dump)
         self.timer.start(1000) 
-        
-        self.skyplot = SkyPlot(self.ui.skyplot, self.my_obj, self.ui)
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        layout.setAlignment(Qt.AlignCenter)  # Center alignment for layout
-        layout.addWidget(self.skyplot.canvas)
-        self.ui.skyplot.setLayout(layout)
 
-        # self.monitor_thread = threading.Thread(target=self.monitor_qman)
-        # self.monitor_thread.daemon = True
-        # self.monitor_thread.start()
+        self.skyplot_timer = QTimer(self)
+        self.skyplot_timer.timeout.connect(self.run_replot_skyplot)
+        self.skyplot_timer.start(10000)
 
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Ready!')
         logging.info(f'Ready!')
 
-    # def monitor_qman(self):
-    #     while True:
-    #         self.json_dump()
-    #         time.sleep(0.2)
+
+    @Slot()
+    def generate_fchart(self):
+        # Create a FinderChartWorker with the user inputs
+        worker = Worker(self.fchart.plot, self.my_obj.ra, self.my_obj.dec, self.my_obj.normed_objname)
+        # Execute the worker using QThreadPool
+        self.thread_pool.start(worker)
+        self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Generating finder chart...')
+        logging.info(f'Finder chart generated!')
+    
+    # @Slot()
+    # def run_json_dump(self):
+    #     worker = Worker(self.json_dump)
+    #     self.thread_pool.start(worker)
+
+    # @Slot()
+    def run_replot_skyplot(self):
+        self.skyplot.my_obj = self.my_obj
+        # worker = Worker(self.skyplot.replot)
+        # self.thread_pool.start(worker)
+        self.skyplot.replot()
 
     def set_queue(self):
         self.qobjs = self.get_qlist()
@@ -159,8 +229,6 @@ class QmanMain(QMainWindow):
                     # self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Error: {e}')
             self.table_data['HA'] = f'{obj_ha_sex}'
             self.table_data['Alt'] = f'{obj_alt}'
-            self.skyplot.my_obj = self.my_obj
-            self.skyplot.replot()
         except Exception as e:
             logging.error(f'func: json_dump() Error: {e}')
             self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Error: {e}')
@@ -239,7 +307,7 @@ class QmanMain(QMainWindow):
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Row added!')
         logging.info(f'Row added!')
         return self
-    
+
     def on_qlist_item_clicked(self, item):
         clicked_queue = self.qobjs[self.qobjs['Object'] == item.text()]
         self.ui.obj_name.setText(item.text())
@@ -251,6 +319,7 @@ class QmanMain(QMainWindow):
             self.qrows.append(new_qrow)
             self.ui.queue.layout().addWidget(new_qrow)
         self.get_obj_data()
+        self.generate_fchart()
         self.skyview.create_aladin_view(self.my_obj.c.ra.deg, self.my_obj.c.dec.deg) # create new Aladin view
         self.ui.statusbar.showMessage(f'{dt.now().strftime("%H:%M:%S")} Queue for {item.text()} loaded!')
         logging.info(f'Queue for {item.text()} loaded!')
@@ -308,22 +377,10 @@ class QmanMain(QMainWindow):
         for obj in sorted(filtered, key=str.lower):
             self.ui.qobjs.addItem(obj)
 
-    # def resizeFunction(self):
-    #     width = self.ui.skyplot.width()
-    #     height = self.ui.skyplot.height()
-    #     square = min(width, height)
-    #     self.skyplot.figure.set_size_inches(square, square)
-    
-    # def resizeEvent(self, event):
-    #     # Override the resizeEvent to call resizeFunction whenever window is resized
-    #     self.resizeFunction()
-
-    #     # Optionally, call the base class method to ensure default behavior
-    #     super(QmanMain, self).resizeEvent(event)
-
     def main(self):
         lockfile = "/tmp/qman.lock"
         logging.info("Starting QMAN...")
+
         single_instance_checker = SingleInstance(lockfile)
 
         if single_instance_checker.is_running():
@@ -335,17 +392,20 @@ class QmanMain(QMainWindow):
             msg_box.exec()
             sys.exit(0)
 
-        window = QmanMain(sys.argv)
-        window.show()
-        sys.exit(app.exec())
+        self.show()
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("\n Usage: qman-pyqt.py <ccdobs.lst> <objpos.dat>")
-        print(" Version of 12.01.2024 by K. Kotysz: k.kotysz(at)gmail.com")
-        print("                          P. Mikolajczyk: przeminio(at)gmail.com")
-        sys.exit(1)
-    else:
+        # print("\n Usage: qman-pyqt.py <ccdobs.lst> <objpos.dat>")
+        # print(" Version of 12.01.2024 by K. Kotysz: k.kotysz(at)gmail.com")
+        # print("                          P. Mikolajczyk: przeminio(at)gmail.com")
+        # parse arguments with argparse
+        parser = argparse.ArgumentParser(description='Queue manager for Andor CCD')
+        parser.add_argument('ccdobs', type=str, help='CCDOBS file')
+        parser.add_argument('--objpos', '-obj', type=str, help='Object position file')
+        parser.add_argument('--debug', '-d', action='store_true', help='Debug mode', default=False)
+        args = parser.parse_args()
+        # print(args)
         app = QApplication(sys.argv)
-        QmanMain(sys.argv).main()
+        window = QmanMain(args).main()
+        sys.exit(app.exec())
